@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC } from 'react';
+import { useEffect, useState, useRef, type FC } from 'react';
 import { ArrowDown, Clock, Play } from 'lucide-react';
 import { STUDIO_INFO } from '../data/rexmoData';
 import { AnimatedCounter } from './AnimatedCounter';
@@ -16,8 +16,37 @@ interface HeroProps {
 export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
   const [scrollY, setScrollY] = useState(0);
   const [studioTime, setStudioTime] = useState('');
-  const [heroMediaMode, setHeroMediaMode] = useState<'photo' | 'video'>('photo');
+  const [isHeroHovered, setIsHeroHovered] = useState(false);
+  const [isLockedVideo, setIsLockedVideo] = useState(false);
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
   const { t } = useLanguage();
+
+  const handleHeroMouseEnter = () => {
+    setIsHeroHovered(true);
+    if (heroVideoRef.current) {
+      heroVideoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleHeroMouseLeave = () => {
+    setIsHeroHovered(false);
+    if (heroVideoRef.current && !isLockedVideo) {
+      heroVideoRef.current.pause();
+    }
+  };
+
+  const handleToggleLockVideo = () => {
+    soundEngine.playShutterClick();
+    setIsLockedVideo((prev) => {
+      const next = !prev;
+      if (next && heroVideoRef.current) {
+        heroVideoRef.current.play().catch(() => {});
+      } else if (!next && !isHeroHovered && heroVideoRef.current) {
+        heroVideoRef.current.pause();
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -182,74 +211,85 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
               {/* Main Image/Video Frame wrapped in 3D TiltCard */}
               <TiltCard maxTilt={5} scale={1.01} glare={true}>
                 <div 
-                  data-cursor={heroMediaMode === 'photo' ? 'explore' : 'play'}
-                  className="relative overflow-hidden bg-[#171717] border border-[#E7E4DE] aspect-[4/3] sm:aspect-[16/11] lg:aspect-[16/11] shadow-[0_20px_50px_rgba(0,0,0,0.06)] group"
+                  data-cursor="play"
+                  onMouseEnter={handleHeroMouseEnter}
+                  onMouseLeave={handleHeroMouseLeave}
+                  className="relative overflow-hidden bg-[#171717] border border-[#E7E4DE] aspect-[4/3] sm:aspect-[16/11] lg:aspect-[16/11] shadow-[0_20px_50px_rgba(0,0,0,0.06)] group cursor-pointer"
                 >
-                  {heroMediaMode === 'photo' ? (
-                    <img
-                      src="/images/hero.jpg"
-                      alt="Rexmo Photography Luxury Wedding Editorial"
-                      loading="eager"
-                      className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-1000 ease-out"
-                      style={{
-                        transform: `translateY(${Math.min(scrollY * 0.04, 30)}px)`
-                      }}
-                    />
-                  ) : (
-                    <video
-                      src="/videos/ambient-teaser.mp4"
-                      poster="/images/hero.jpg"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="w-full h-full object-cover object-center animate-fade-in"
-                    />
-                  )}
+                  {/* Still Photo Layer */}
+                  <img
+                    src="/images/hero.jpg"
+                    alt="Rexmo Photography Luxury Wedding Editorial"
+                    loading="eager"
+                    className={`w-full h-full object-cover object-center transform transition-all duration-700 ease-out ${
+                      isHeroHovered || isLockedVideo ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
+                    }`}
+                    style={{
+                      transform: `translateY(${Math.min(scrollY * 0.04, 30)}px)`
+                    }}
+                  />
+
+                  {/* Cinema Video Layer (Starts playing on hover) */}
+                  <video
+                    ref={heroVideoRef}
+                    src="/videos/ambient-teaser.mp4"
+                    poster="/images/hero.jpg"
+                    loop
+                    muted
+                    playsInline
+                    className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 ease-out ${
+                      isHeroHovered || isLockedVideo ? 'opacity-95 scale-105' : 'opacity-0 pointer-events-none'
+                    }`}
+                  />
 
                   {/* Subtle warm luxury gradient vignette */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/20 pointer-events-none" />
 
-                  {/* Media Mode Toggle Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      soundEngine.playShutterClick();
-                      setHeroMediaMode((prev) => (prev === 'photo' ? 'video' : 'photo'));
-                    }}
-                    className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 flex items-center space-x-2 bg-black/60 hover:bg-[#A58A62] backdrop-blur-md px-3.5 py-1.5 border border-white/20 text-white text-[10px] font-mono tracking-widest uppercase transition-colors duration-300 shadow-md"
-                    aria-label="Toggle between photo and ambient cinema reel"
-                  >
-                    {heroMediaMode === 'photo' ? (
-                      <>
-                        <Play size={11} className="fill-white" />
-                        <span>PLAY CINEMA REEL</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping inline-block" />
-                        <span>VIEW STILL PHOTO</span>
-                      </>
-                    )}
-                  </button>
+                  {/* Hover Status & Lock Toggle Button */}
+                  <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 bg-black/70 backdrop-blur-md px-3.5 py-1.5 border border-white/20 text-white text-[10px] font-mono tracking-widest uppercase shadow-md">
+                      {isHeroHovered || isLockedVideo ? (
+                        <>
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping inline-block" />
+                          <span>PLAYING ON HOVER</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play size={10} className="fill-white" />
+                          <span>KEEP CURSOR TO PLAY</span>
+                        </>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleLockVideo();
+                      }}
+                      className="hidden sm:inline-flex items-center px-2.5 py-1.5 bg-black/50 hover:bg-[#A58A62] backdrop-blur-md border border-white/20 text-[9px] font-mono tracking-widest text-white/90 uppercase transition-colors"
+                      title="Lock continuous video playback"
+                    >
+                      {isLockedVideo ? 'UNLOCK' : 'LOCK LOOP'}
+                    </button>
+                  </div>
 
                   {/* Bottom Overlay Label inside image */}
-                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex justify-between items-end text-white text-xs z-10">
+                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex justify-between items-end text-white text-xs z-10 pointer-events-none">
                     <div>
                       <span className="font-mono text-[10px] tracking-widest uppercase text-white/80">
-                        {heroMediaMode === 'photo' ? 'PLATE NO. 01' : 'LIVE 4K CINEMA TEASER'}
+                        {isHeroHovered || isLockedVideo ? 'LIVE 4K CINEMA TEASER' : 'PLATE NO. 01'}
                       </span>
                       <p className="font-serif text-lg sm:text-xl font-light tracking-wide text-white drop-shadow-sm">
-                        {heroMediaMode === 'photo' ? 'The Coastal Vow Session' : 'Motion Poem: Kovalam Twilight'}
+                        {isHeroHovered || isLockedVideo ? 'Motion Poem: Kovalam Twilight' : 'The Coastal Vow Session'}
                       </p>
                     </div>
                     <div className="hidden sm:block text-right text-[10px] tracking-widest uppercase font-mono text-white/80">
-                      {heroMediaMode === 'photo' ? 'MEDIUM FORMAT ANALOG TONES' : 'SUPER 8 GRAIN & 2.39:1'}
+                      {isHeroHovered || isLockedVideo ? 'SUPER 8 GRAIN & 2.39:1' : 'MEDIUM FORMAT ANALOG TONES'}
                     </div>
                   </div>
 
                   {/* Floating Corner Badge */}
-                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-[#F7F6F2]/90 backdrop-blur-sm px-3.5 py-1.5 border border-[#E7E4DE] text-[10px] tracking-[0.2em] uppercase font-mono text-[#171717] z-10">
+                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-[#F7F6F2]/90 backdrop-blur-sm px-3.5 py-1.5 border border-[#E7E4DE] text-[10px] tracking-[0.2em] uppercase font-mono text-[#171717] z-10 pointer-events-none">
                     SINCE 1992
                   </div>
                 </div>
