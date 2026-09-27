@@ -1,5 +1,6 @@
 import React from 'react';
 import { Film, Sparkles, Sliders, Eye } from 'lucide-react';
+import { ColorGradeComparison } from './ColorGradeComparison';
 
 export const Philosophy: React.FC = () => {
   const pillars = [
@@ -111,6 +112,9 @@ export const Philosophy: React.FC = () => {
           </div>
 
         </div>
+
+        {/* Interactive Editorial Color Grading Comparison Slider */}
+        <ColorGradeComparison />
 
       </div>
     </section>

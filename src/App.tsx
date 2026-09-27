@@ -13,6 +13,10 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { InquiryModal } from './components/InquiryModal';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
+import { CustomCursor } from './components/CustomCursor';
+import { ScrollProgress } from './components/ScrollProgress';
+import { FilmGrain } from './components/FilmGrain';
+import { MarqueeTicker } from './components/MarqueeTicker';
 import type { ServiceItem } from './data/rexmoData';
 
 export function App() {
@@ -55,6 +59,28 @@ export function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Handle initial hash and query param navigation (?to=section or ?y=offset)
+  useEffect(() => {
+    const handleNavigation = () => {
+      const params = new URLSearchParams(window.location.search);
+      const to = params.get('to') || window.location.hash.replace('#', '');
+      const y = params.get('y');
+
+      if (y) {
+        window.scrollTo(0, parseInt(y, 10));
+      } else if (to) {
+        const element = document.getElementById(to);
+        if (element) {
+          window.scrollTo(0, element.offsetTop - 80);
+        }
+      }
+    };
+
+    handleNavigation();
+    window.addEventListener('hashchange', handleNavigation);
+    return () => window.removeEventListener('hashchange', handleNavigation);
+  }, []);
+
   const handleOpenInquiry = (serviceName?: string) => {
     if (serviceName) {
       setSelectedServiceForInquiry(serviceName);
@@ -78,7 +104,16 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F6F2] text-[#171717] font-sans selection:bg-[#A58A62] selection:text-white">
+    <div className="min-h-screen bg-[#F7F6F2] text-[#171717] font-sans selection:bg-[#A58A62] selection:text-white relative">
+      {/* Top 2.5px Golden Scroll Reading Progress Bar */}
+      <ScrollProgress />
+
+      {/* Luxury Lerping Custom Cursor (Desktop only, auto-disabled on touch) */}
+      <CustomCursor />
+
+      {/* Subtle Analog Super 8 Film Grain Texture */}
+      <FilmGrain />
+
       {/* Top Sticky Header */}
       <Header
         onOpenInquiry={() => handleOpenInquiry()}
@@ -98,7 +133,22 @@ export function App() {
           onDiscoverStudio={handleDiscoverStudio}
         />
 
-        {/* 3. Cinematic Nostalgia & Philosophy */}
+        {/* Luxury Infinite Marquee Ticker 1 */}
+        <MarqueeTicker
+          speedSeconds={32}
+          variant="gold-border"
+          items={[
+            'DESTINATION WEDDINGS',
+            'FINE ART CINEMATOGRAPHY',
+            'COUTURE PORTRAITURE',
+            'SUPER 8 ANALOG GRAIN',
+            'EDITORIAL MATERNITY',
+            'ESTABLISHED 1992',
+            'SOUTH INDIA & WORLDWIDE'
+          ]}
+        />
+
+        {/* 3. Cinematic Nostalgia & Philosophy (Includes Interactive Color Grade Slider) */}
         <Philosophy />
 
         {/* 4. Curated Collections & Services */}
@@ -123,6 +173,25 @@ export function App() {
         {/* 8. Destinations Directory (South India & International) */}
         <Destinations
           onOpenInquiry={handleOpenInquiry}
+        />
+
+        {/* Luxury Infinite Marquee Ticker 2: Global Destinations */}
+        <MarqueeTicker
+          direction="right"
+          speedSeconds={40}
+          variant="subtle"
+          items={[
+            'TAMIL NADU',
+            'KERALA',
+            'KARNATAKA',
+            'DUBAI',
+            'ABU DHABI',
+            'LONDON',
+            'PARIS',
+            'MALDIVES',
+            'SINGAPORE',
+            'ARCHIVAL FINE ART BOOKS'
+          ]}
         />
 
         {/* 9. Authentic Client Testimonials */}

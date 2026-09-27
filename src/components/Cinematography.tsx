@@ -33,7 +33,11 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
 
         {/* Hero Cinema Preview Card */}
         <div className="pt-16">
-          <div className="relative group overflow-hidden bg-[#171717] border border-[#E7E4DE] shadow-2xl">
+          <div 
+            data-cursor="play"
+            onClick={() => setIsVideoModalOpen(true)}
+            className="relative group overflow-hidden bg-[#171717] border border-[#E7E4DE] shadow-2xl cursor-pointer"
+          >
             
             {/* Background Feature Image */}
             <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
@@ -48,7 +52,10 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
             {/* Play Button Trigger in Center */}
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
               <button
-                onClick={() => setIsVideoModalOpen(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsVideoModalOpen(true);
+                }}
                 aria-label="Play Rexmo Cinema Showreel"
                 className="group/btn relative w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-white/40 bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-[#A58A62] hover:border-[#A58A62] transition-all duration-300 transform group-hover:scale-110 shadow-2xl mb-4"
               >
@@ -70,12 +77,23 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
             {/* Micro Details Bar inside Frame */}
             <div className="hidden sm:flex justify-between items-center px-8 py-4 bg-black/60 backdrop-blur-sm border-t border-white/10 text-white/70 text-xs font-mono">
               <div className="flex items-center space-x-6">
+                {/* Animated Equalizer Wave */}
+                <div className="flex items-end space-x-1 h-3.5" title="Live Ambient Audio Track">
+                  <span className="w-0.5 bg-[#A58A62] animate-[float-slow_0.8s_ease-in-out_infinite] h-2" />
+                  <span className="w-0.5 bg-[#A58A62] animate-[float-slow_1.2s_ease-in-out_infinite_0.2s] h-3.5" />
+                  <span className="w-0.5 bg-[#A58A62] animate-[float-slow_0.9s_ease-in-out_infinite_0.4s] h-1.5" />
+                  <span className="w-0.5 bg-[#A58A62] animate-[float-slow_1.1s_ease-in-out_infinite_0.1s] h-3" />
+                  <span className="w-0.5 bg-[#A58A62] animate-[float-slow_0.7s_ease-in-out_infinite_0.3s] h-2" />
+                </div>
                 <span>SOUNDSCAPE: BESPOKE SCORE & AMBIENT AUDIO</span>
                 <span>•</span>
                 <span>ASPECT RATIO: 2.39:1 ANAMORPHIC</span>
               </div>
               <button
-                onClick={() => setIsVideoModalOpen(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsVideoModalOpen(true);
+                }}
                 className="text-[#A58A62] hover:text-white transition-colors flex items-center space-x-1"
               >
                 <span>WATCH FULL SHOWREEL</span>

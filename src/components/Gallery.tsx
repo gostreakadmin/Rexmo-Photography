@@ -88,6 +88,7 @@ export const Gallery: FC = () => {
               <div
                 key={item.id}
                 onClick={() => handleOpenLightbox(index)}
+                data-cursor="view"
                 className="group relative break-inside-avoid overflow-hidden bg-white border border-[#E7E4DE] hover:border-[#A58A62] transition-all duration-500 cursor-pointer shadow-sm"
               >
                 {/* Image */}

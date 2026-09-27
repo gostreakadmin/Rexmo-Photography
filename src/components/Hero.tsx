@@ -1,6 +1,7 @@
 import { useEffect, useState, type FC } from 'react';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, Clock } from 'lucide-react';
 import { STUDIO_INFO } from '../data/rexmoData';
+import { AnimatedCounter } from './AnimatedCounter';
 
 interface HeroProps {
   onExploreWork: () => void;
@@ -9,13 +10,33 @@ interface HeroProps {
 
 export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
   const [scrollY, setScrollY] = useState(0);
+  const [studioTime, setStudioTime] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    // Live studio time display (IST)
+    const updateTime = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      setStudioTime(new Intl.DateTimeFormat('en-GB', options).format(now) + ' IST');
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -25,7 +46,7 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
     >
       {/* Editorial Top Metadata Strip */}
       <div className="max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-12 pt-4">
-        <div className="flex flex-wrap items-center justify-between border-b border-[#E7E4DE] pb-4 text-[11px] sm:text-xs tracking-[0.25em] uppercase text-[#6F6F6F]">
+        <div className="flex flex-wrap items-center justify-between border-b border-[#E7E4DE] pb-4 text-[11px] sm:text-xs tracking-[0.25em] uppercase text-[#6F6F6F] gap-2">
           <div className="flex items-center space-x-2">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#A58A62] animate-pulse" />
             <span>FINE ART PHOTOGRAPHY & CINEMA</span>
@@ -35,8 +56,9 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
             <span>•</span>
             <span>ESTABLISHED 1992</span>
           </div>
-          <div className="font-mono text-[#171717]">
-            KOVIL / KOVALAM, TN
+          <div className="flex items-center space-x-2 font-mono text-[#171717]">
+            <Clock size={12} className="text-[#A58A62]" />
+            <span>{studioTime || 'KOVIL / KOVALAM, TN'}</span>
           </div>
         </div>
       </div>
@@ -76,10 +98,10 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
               <button
                 onClick={onExploreWork}
-                className="group inline-flex items-center justify-center space-x-3 bg-[#171717] text-[#FFFFFF] px-7 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#A58A62] transition-colors duration-300 shadow-sm"
+                className="group relative overflow-hidden inline-flex items-center justify-center space-x-3 bg-[#171717] text-[#FFFFFF] px-7 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#A58A62] transition-colors duration-300 shadow-sm shimmer-hover"
               >
                 <span>EXPLORE OUR WORK</span>
-                <span className="text-sm transform group-hover:translate-x-1 transition-transform duration-300">
+                <span className="text-sm transform group-hover:translate-x-1.5 transition-transform duration-300">
                   →
                 </span>
               </button>
@@ -89,24 +111,28 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
                 className="group inline-flex items-center justify-center space-x-2 border border-[#171717] text-[#171717] px-7 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:border-[#A58A62] hover:text-[#A58A62] transition-colors duration-300 bg-transparent"
               >
                 <span>BEGIN YOUR JOURNEY</span>
-                <span className="text-sm transform group-hover:translate-x-1 transition-transform duration-300">
+                <span className="text-sm transform group-hover:translate-x-1.5 transition-transform duration-300">
                   →
                 </span>
               </button>
             </div>
 
-            {/* Micro Stats */}
+            {/* Micro Stats with Animated Counter */}
             <div className="pt-6 border-t border-[#E7E4DE] grid grid-cols-3 gap-4 text-left">
               <div>
-                <p className="font-serif text-2xl text-[#171717]">34+</p>
+                <p className="font-serif text-2xl sm:text-3xl text-[#171717]">
+                  <AnimatedCounter end={34} suffix="+" />
+                </p>
                 <p className="text-[10px] uppercase tracking-wider text-[#6F6F6F]">Years Legacy</p>
               </div>
               <div>
-                <p className="font-serif text-2xl text-[#171717]">1,500+</p>
+                <p className="font-serif text-2xl sm:text-3xl text-[#171717]">
+                  <AnimatedCounter end={1500} suffix="+" />
+                </p>
                 <p className="text-[10px] uppercase tracking-wider text-[#6F6F6F]">Stories Told</p>
               </div>
               <div>
-                <p className="font-serif text-2xl text-[#171717]">4K / Film</p>
+                <p className="font-serif text-2xl sm:text-3xl text-[#171717]">4K / Film</p>
                 <p className="text-[10px] uppercase tracking-wider text-[#6F6F6F]">Master Quality</p>
               </div>
             </div>
@@ -122,7 +148,10 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
               />
 
               {/* Main Image Frame */}
-              <div className="relative overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] aspect-[4/3] sm:aspect-[16/11] lg:aspect-[16/11] shadow-[0_20px_50px_rgba(0,0,0,0.06)] group">
+              <div 
+                data-cursor="explore"
+                className="relative overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] aspect-[4/3] sm:aspect-[16/11] lg:aspect-[16/11] shadow-[0_20px_50px_rgba(0,0,0,0.06)] group"
+              >
                 <img
                   src="/images/hero.jpg"
                   alt="Rexmo Photography Luxury Wedding Editorial"

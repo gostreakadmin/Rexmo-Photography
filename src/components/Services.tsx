@@ -49,7 +49,11 @@ export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) 
                 }`}
               >
                 {/* Image Section */}
-                <div className={`relative overflow-hidden ${isFeatured ? 'h-[320px] sm:h-[400px]' : 'h-[280px] sm:h-[320px]'}`}>
+                <div 
+                  data-cursor="explore"
+                  onClick={() => setSelectedModalService(service)}
+                  className={`relative overflow-hidden cursor-pointer ${isFeatured ? 'h-[320px] sm:h-[400px]' : 'h-[280px] sm:h-[320px]'}`}
+                >
                   <img
                     src={service.image}
                     alt={`Rexmo ${service.title} Photography`}
