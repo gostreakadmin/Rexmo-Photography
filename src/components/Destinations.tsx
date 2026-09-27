@@ -83,39 +83,60 @@ export const Destinations: FC<DestinationsProps> = ({ onOpenInquiry }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pt-12 items-start">
           
           {/* Left Column: Destination Cards List (7 cols) */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5">
             {filteredDestinations.map((dest) => {
               const isSelected = activeDestination.name === dest.name;
               return (
                 <div
                   key={dest.name}
                   onClick={() => handleSelectDestination(dest)}
-                  className={`p-6 border transition-all duration-300 cursor-pointer flex flex-col justify-between ${
+                  className={`group border transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden ${
                     isSelected
-                      ? 'bg-[#F7F6F2] border-[#A58A62] shadow-md ring-1 ring-[#A58A62]/30'
-                      : 'bg-white border-[#E7E4DE] hover:border-[#A58A62]/50 hover:bg-[#F7F6F2]/50'
+                      ? 'bg-[#F7F6F2] border-[#A58A62] shadow-md ring-1 ring-[#A58A62]/40'
+                      : 'bg-white border-[#E7E4DE] hover:border-[#A58A62]/60 hover:bg-[#F7F6F2]/40'
                   }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between text-[10px] font-mono tracking-widest uppercase text-[#6F6F6F] mb-2">
-                      <span className="text-[#A58A62] font-semibold">{dest.region}</span>
-                      <span>{dest.tag}</span>
+                  {/* Card Image Thumbnail */}
+                  {dest.image && (
+                    <div className="relative aspect-[16/10] overflow-hidden bg-stone-100">
+                      <img
+                        src={dest.image}
+                        alt={`Rexmo Destination ${dest.name}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-70 group-hover:opacity-50 transition-opacity" />
+                      
+                      {/* Region Badge */}
+                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-0.5 text-[9px] font-mono tracking-widest text-[#171717] uppercase font-medium">
+                        {dest.region}
+                      </div>
+
+                      {/* Tag Badge */}
+                      <div className="absolute bottom-2.5 left-3 text-[10px] font-mono text-white/90 tracking-wider uppercase">
+                        {dest.tag}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Card Body */}
+                  <div className="p-5 flex flex-col justify-between flex-grow">
+                    <div>
+                      <h3 className="font-serif text-2xl text-[#171717] font-light mb-2 group-hover:text-[#A58A62] transition-colors">
+                        {dest.name}
+                      </h3>
+
+                      <p className="text-xs text-[#6F6F6F] leading-relaxed line-clamp-2 font-light">
+                        {dest.description}
+                      </p>
                     </div>
 
-                    <h3 className="font-serif text-2xl text-[#171717] font-light mb-2">
-                      {dest.name}
-                    </h3>
-
-                    <p className="text-xs text-[#6F6F6F] leading-relaxed line-clamp-2 font-light">
-                      {dest.description}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 mt-4 border-t border-[#E7E4DE] flex items-center justify-between text-[10px] font-mono">
-                    <span className="text-[#6F6F6F]">{dest.highlights.length} PREFERRED VENUES</span>
-                    <span className={`uppercase tracking-wider ${isSelected ? 'text-[#A58A62] font-bold' : 'text-[#171717]'}`}>
-                      {isSelected ? 'ACTIVE •' : 'SELECT →'}
-                    </span>
+                    <div className="pt-3 mt-4 border-t border-[#E7E4DE] flex items-center justify-between text-[10px] font-mono">
+                      <span className="text-[#6F6F6F]">{dest.highlights.length} PREFERRED VENUES</span>
+                      <span className={`uppercase tracking-wider transition-colors ${isSelected ? 'text-[#A58A62] font-bold' : 'text-[#171717] group-hover:text-[#A58A62]'}`}>
+                        {isSelected ? 'ACTIVE •' : 'EXPLORE →'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -125,14 +146,42 @@ export const Destinations: FC<DestinationsProps> = ({ onOpenInquiry }) => {
           {/* Right Column: Active Destination Briefing Detail Box (5 cols) */}
           <div className="lg:col-span-5 sticky top-28">
             <TiltCard maxTilt={4} scale={1.01} glare={true}>
-              <div className="bg-[#F7F6F2] border border-[#E7E4DE] p-6 sm:p-8 space-y-6 shadow-sm">
+              <div className="bg-[#F7F6F2] border border-[#E7E4DE] p-6 sm:p-7 space-y-5 shadow-sm">
+                
+                {/* Active Photo Feature */}
+                {activeDestination.image && (
+                  <div className="relative aspect-[16/10] overflow-hidden border border-[#E7E4DE] shadow-inner group">
+                    <img
+                      key={activeDestination.name}
+                      src={activeDestination.image}
+                      alt={activeDestination.name}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 animate-fade-in"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-80" />
+                    
+                    <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
+                      <div>
+                        <span className="text-[9px] font-mono tracking-widest text-[#A58A62] uppercase block">
+                          PORTFOLIO RECORD
+                        </span>
+                        <h4 className="font-serif text-xl sm:text-2xl text-white font-light">
+                          {activeDestination.name}
+                        </h4>
+                      </div>
+                      <span className="text-[9px] font-mono uppercase tracking-widest bg-white/20 backdrop-blur-sm px-2 py-0.5 border border-white/30">
+                        {activeDestination.region}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center space-x-2 text-[10px] font-mono tracking-widest text-[#A58A62] uppercase">
                   <Compass size={14} className="animate-spin duration-3000" />
                   <span>DESTINATION BRIEFING</span>
                 </div>
 
                 <div>
-                  <h3 className="font-serif text-3xl sm:text-4xl text-[#171717] font-light mb-1">
+                  <h3 className="font-serif text-2xl sm:text-3xl text-[#171717] font-light mb-1">
                     {activeDestination.name}
                   </h3>
                   <p className="text-xs font-mono uppercase tracking-widest text-[#6F6F6F]">
@@ -149,11 +198,11 @@ export const Destinations: FC<DestinationsProps> = ({ onOpenInquiry }) => {
                   <h4 className="text-[11px] font-mono uppercase tracking-widest text-[#6F6F6F]">
                     NOTABLE VENUES & CELEBRATION SITES:
                   </h4>
-                  <ul className="space-y-1.5 text-xs text-[#171717] font-light">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#171717] font-light">
                     {activeDestination.highlights.map((venue: string) => (
                       <li key={venue} className="flex items-center space-x-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#A58A62]" />
-                        <span>{venue}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#A58A62] flex-shrink-0" />
+                        <span className="truncate">{venue}</span>
                       </li>
                     ))}
                   </ul>

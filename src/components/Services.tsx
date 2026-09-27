@@ -206,6 +206,35 @@ export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) 
               {selectedModalService.description}
             </p>
 
+            {/* Curated Sample Frames Grid */}
+            {selectedModalService.sampleImages && selectedModalService.sampleImages.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-[11px] font-mono tracking-widest uppercase text-[#A58A62]">
+                    CURATED FRAMES FROM THIS COLLECTION:
+                  </h4>
+                  <span className="text-[10px] font-mono text-[#6F6F6F]">
+                    {selectedModalService.sampleImages.length} FRAMES
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {selectedModalService.sampleImages.map((imgSrc, sIdx) => (
+                    <div key={sIdx} className="aspect-[4/3] overflow-hidden border border-[#E7E4DE] group/img relative bg-stone-100">
+                      <img
+                        src={imgSrc}
+                        alt={`${selectedModalService.title} preview frame ${sIdx + 1}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/img:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-[9px] text-white font-mono uppercase tracking-widest pointer-events-none">
+                        FRAME 0{sIdx + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <h4 className="text-xs font-mono tracking-widest uppercase text-[#A58A62] mb-3">
               WHAT IS INCLUDED:
             </h4>

@@ -5,6 +5,7 @@ import { Intro } from './components/Intro';
 import { Philosophy } from './components/Philosophy';
 import { Services } from './components/Services';
 import { Gallery } from './components/Gallery';
+import { FeaturedStories } from './components/FeaturedStories';
 import { Cinematography } from './components/Cinematography';
 import { About } from './components/About';
 import { Destinations } from './components/Destinations';
@@ -32,6 +33,7 @@ export function App() {
       'philosophy',
       'services',
       'gallery',
+      'stories',
       'cinematography',
       'about',
       'destinations',
@@ -160,7 +162,12 @@ export function App() {
         {/* 5. Featured Gallery & Archives with Lightbox */}
         <Gallery />
 
-        {/* 6. Cinematic Motion & Wedding Films */}
+        {/* 6. Featured Archival Love Stories Monograph */}
+        <FeaturedStories
+          onOpenInquiry={handleOpenInquiry}
+        />
+
+        {/* 7. Cinematic Motion & Wedding Films */}
         <Cinematography
           onOpenInquiry={handleOpenInquiry}
         />

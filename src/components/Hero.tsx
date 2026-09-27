@@ -1,5 +1,5 @@
 import { useEffect, useState, type FC } from 'react';
-import { ArrowDown, Clock } from 'lucide-react';
+import { ArrowDown, Clock, Play } from 'lucide-react';
 import { STUDIO_INFO } from '../data/rexmoData';
 import { AnimatedCounter } from './AnimatedCounter';
 import { GoldenParticles } from './GoldenParticles';
@@ -16,6 +16,7 @@ interface HeroProps {
 export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
   const [scrollY, setScrollY] = useState(0);
   const [studioTime, setStudioTime] = useState('');
+  const [heroMediaMode, setHeroMediaMode] = useState<'photo' | 'video'>('photo');
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -178,40 +179,77 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
                 className="absolute inset-0 border border-[#A58A62]/40 translate-x-3 translate-y-3 -z-10 pointer-events-none"
               />
 
-              {/* Main Image Frame wrapped in 3D TiltCard */}
+              {/* Main Image/Video Frame wrapped in 3D TiltCard */}
               <TiltCard maxTilt={5} scale={1.01} glare={true}>
                 <div 
-                  data-cursor="explore"
-                  className="relative overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] aspect-[4/3] sm:aspect-[16/11] lg:aspect-[16/11] shadow-[0_20px_50px_rgba(0,0,0,0.06)] group"
+                  data-cursor={heroMediaMode === 'photo' ? 'explore' : 'play'}
+                  className="relative overflow-hidden bg-[#171717] border border-[#E7E4DE] aspect-[4/3] sm:aspect-[16/11] lg:aspect-[16/11] shadow-[0_20px_50px_rgba(0,0,0,0.06)] group"
                 >
-                  <img
-                    src="/images/hero.jpg"
-                    alt="Rexmo Photography Luxury Wedding Editorial"
-                    loading="eager"
-                    className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-1000 ease-out"
-                    style={{
-                      transform: `translateY(${Math.min(scrollY * 0.04, 30)}px)`
-                    }}
-                  />
+                  {heroMediaMode === 'photo' ? (
+                    <img
+                      src="/images/hero.jpg"
+                      alt="Rexmo Photography Luxury Wedding Editorial"
+                      loading="eager"
+                      className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-1000 ease-out"
+                      style={{
+                        transform: `translateY(${Math.min(scrollY * 0.04, 30)}px)`
+                      }}
+                    />
+                  ) : (
+                    <video
+                      src="/videos/ambient-teaser.mp4"
+                      poster="/images/hero.jpg"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover object-center animate-fade-in"
+                    />
+                  )}
 
                   {/* Subtle warm luxury gradient vignette */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/20 pointer-events-none" />
+
+                  {/* Media Mode Toggle Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      soundEngine.playShutterClick();
+                      setHeroMediaMode((prev) => (prev === 'photo' ? 'video' : 'photo'));
+                    }}
+                    className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 flex items-center space-x-2 bg-black/60 hover:bg-[#A58A62] backdrop-blur-md px-3.5 py-1.5 border border-white/20 text-white text-[10px] font-mono tracking-widest uppercase transition-colors duration-300 shadow-md"
+                    aria-label="Toggle between photo and ambient cinema reel"
+                  >
+                    {heroMediaMode === 'photo' ? (
+                      <>
+                        <Play size={11} className="fill-white" />
+                        <span>PLAY CINEMA REEL</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping inline-block" />
+                        <span>VIEW STILL PHOTO</span>
+                      </>
+                    )}
+                  </button>
 
                   {/* Bottom Overlay Label inside image */}
-                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex justify-between items-end text-white text-xs">
+                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex justify-between items-end text-white text-xs z-10">
                     <div>
-                      <span className="font-mono text-[10px] tracking-widest uppercase text-white/80">PLATE NO. 01</span>
+                      <span className="font-mono text-[10px] tracking-widest uppercase text-white/80">
+                        {heroMediaMode === 'photo' ? 'PLATE NO. 01' : 'LIVE 4K CINEMA TEASER'}
+                      </span>
                       <p className="font-serif text-lg sm:text-xl font-light tracking-wide text-white drop-shadow-sm">
-                        The Coastal Vow Session
+                        {heroMediaMode === 'photo' ? 'The Coastal Vow Session' : 'Motion Poem: Kovalam Twilight'}
                       </p>
                     </div>
                     <div className="hidden sm:block text-right text-[10px] tracking-widest uppercase font-mono text-white/80">
-                      MEDIUM FORMAT ANALOG TONES
+                      {heroMediaMode === 'photo' ? 'MEDIUM FORMAT ANALOG TONES' : 'SUPER 8 GRAIN & 2.39:1'}
                     </div>
                   </div>
 
                   {/* Floating Corner Badge */}
-                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-[#F7F6F2]/90 backdrop-blur-sm px-3.5 py-1.5 border border-[#E7E4DE] text-[10px] tracking-[0.2em] uppercase font-mono text-[#171717]">
+                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-[#F7F6F2]/90 backdrop-blur-sm px-3.5 py-1.5 border border-[#E7E4DE] text-[10px] tracking-[0.2em] uppercase font-mono text-[#171717] z-10">
                     SINCE 1992
                   </div>
                 </div>
