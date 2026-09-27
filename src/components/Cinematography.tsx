@@ -217,9 +217,11 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
                 
                 {/* Background Ambient Video Loop */}
                 <video
+                  key={activeFilm.id}
                   ref={videoRef}
-                  src={activeFilm.localVideo || '/videos/ambient-teaser.mp4'}
+                  src={activeFilm.localVideo}
                   poster={activeFilm.coverImage}
+                  autoPlay={isScreenHovered || isPlayingInline}
                   loop
                   muted
                   playsInline

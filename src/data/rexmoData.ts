@@ -766,7 +766,7 @@ export const CINEMA_FILMS_DATA: CinemaFilmItem[] = [
     duration: "03:42",
     aspectRatio: "2.39:1 Anamorphic",
     youtubeId: "EoYXai-bRec",
-    localVideo: "/videos/ambient-teaser.mp4",
+    localVideo: "/videos/video-reel-1.webm",
     coverImage: "/images/gallery-feature-1.jpg",
     description: "Shot across heritage courtyards with anamorphic prime lenses, documenting the unhurried cadence of familial grace and sacred rituals.",
     tag: "4K Digital Cinema & Super 8"
@@ -779,7 +779,7 @@ export const CINEMA_FILMS_DATA: CinemaFilmItem[] = [
     duration: "04:15",
     aspectRatio: "16:9 Cinema",
     youtubeId: "mXx4s0uzfeo",
-    localVideo: "/videos/ambient-teaser.mp4",
+    localVideo: "/videos/video-reel-2.mp4",
     coverImage: "/images/gallery-feature-4.jpg",
     description: "Pristine cliffside twilight and Travancore architecture framing a tender celebration documented with broadcast fidelity.",
     tag: "Royal Heritage Film"
@@ -792,7 +792,7 @@ export const CINEMA_FILMS_DATA: CinemaFilmItem[] = [
     duration: "03:18",
     aspectRatio: "2.39:1 Anamorphic",
     youtubeId: "N75cXTI0im8",
-    localVideo: "/videos/ambient-teaser.mp4",
+    localVideo: "/videos/video-reel-3.webm",
     coverImage: "/images/gallery-feature-2.jpg",
     description: "Sacred fire, temple bells, and the timeless vibrancy of traditional Vedic chants captured with poetic precision.",
     tag: "Sacred Temple Rites"
@@ -805,7 +805,7 @@ export const CINEMA_FILMS_DATA: CinemaFilmItem[] = [
     duration: "03:55",
     aspectRatio: "16:9 Cinema",
     youtubeId: "dQ95gd5e3ZE",
-    localVideo: "/videos/ambient-teaser.mp4",
+    localVideo: "/videos/video-reel-4.webm",
     coverImage: "/images/story-2.jpg",
     description: "Tranquil backwaters and colonial charm meeting Super 8 nostalgia in a quiet, deeply emotive wedding monograph.",
     tag: "Backwater Poetry"
