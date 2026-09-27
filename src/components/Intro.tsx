@@ -45,7 +45,7 @@ export const Intro: FC<IntroProps> = ({ onDiscoverStudio }) => {
                   className="overflow-hidden bg-[#F7F6F2] border border-[#E7E4DE] aspect-[4/5] shadow-[0_15px_40px_rgba(0,0,0,0.04)] group"
                 >
                   <img
-                    src="/images/intro-studio.jpg"
+                    src="images/intro-studio.jpg"
                     alt="Rexmo Photography Studio Aesthetic and Intentional Composition"
                     loading="lazy"
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"

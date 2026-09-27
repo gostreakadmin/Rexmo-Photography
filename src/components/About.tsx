@@ -50,7 +50,7 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
               <div>
                 <div className="relative aspect-[4/5] overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] mb-6">
                   <img
-                    src="/images/founder-francis.jpg"
+                    src="images/founder-francis.jpg"
                     alt="Francis Jeya Balan - Founder of Rexmo Photography"
                     loading="lazy"
                     className="w-full h-full object-cover object-top filter grayscale contrast-110 group-hover:filter-none transition-all duration-700"
@@ -94,7 +94,7 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
               <div>
                 <div className="relative aspect-[4/5] overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] mb-6">
                   <img
-                    src="/images/director-jesley.jpg"
+                    src="images/director-jesley.jpg"
                     alt="Jesley Frantin - Creative Director of Rexmo Photography"
                     loading="lazy"
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"

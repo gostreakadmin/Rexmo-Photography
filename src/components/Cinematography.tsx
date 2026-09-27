@@ -53,7 +53,7 @@ const FilmstripCard: FC<FilmstripCardProps> = ({ film, index, isSelected, onSele
       <div className="relative aspect-[16/9] overflow-hidden bg-black mb-3">
         <video
           ref={cardVideoRef}
-          src={film.localVideo || '/videos/ambient-teaser.mp4'}
+          src={film.localVideo || 'videos/ambient-teaser.mp4'}
           poster={film.coverImage}
           muted
           loop

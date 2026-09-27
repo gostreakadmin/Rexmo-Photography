@@ -218,7 +218,7 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
                 >
                   {/* Still Photo Layer */}
                   <img
-                    src="/images/hero.jpg"
+                    src="images/hero.jpg"
                     alt="Rexmo Photography Luxury Wedding Editorial"
                     loading="eager"
                     className={`w-full h-full object-cover object-center transform transition-all duration-700 ease-out ${
@@ -232,8 +232,8 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
                   {/* Cinema Video Layer (Starts playing on hover) */}
                   <video
                     ref={heroVideoRef}
-                    src="/videos/ambient-teaser.mp4"
-                    poster="/images/hero.jpg"
+                    src="videos/ambient-teaser.mp4"
+                    poster="images/hero.jpg"
                     loop
                     muted
                     playsInline

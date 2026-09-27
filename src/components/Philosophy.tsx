@@ -67,7 +67,7 @@ export const Philosophy: React.FC = () => {
                 onClick={() => soundEngine.playShutterClick()}
               >
                 <img
-                  src="/images/cinematic-nostalgia.jpg"
+                  src="images/cinematic-nostalgia.jpg"
                   alt="Vintage camera optics and Rexmo analog aesthetic"
                   loading="lazy"
                   className="w-full h-[450px] sm:h-[550px] object-cover object-center group-hover:scale-105 group-hover:rotate-[0.5deg] transition-all duration-1000 ease-out"

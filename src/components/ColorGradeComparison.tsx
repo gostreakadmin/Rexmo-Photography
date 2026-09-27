@@ -77,7 +77,7 @@ export const ColorGradeComparison: FC = () => {
         {/* Layer 1: Left / Raw Capture (Desaturated, Flat Log Profile) */}
         <div className="absolute inset-0">
           <img
-            src="/images/cinematic-nostalgia.jpg"
+            src="images/cinematic-nostalgia.jpg"
             alt="Unedited Raw Log Sensor Capture"
             className="w-full h-full object-cover filter contrast-[0.80] brightness-[1.08] saturate-[0.55]"
             draggable={false}
@@ -94,7 +94,7 @@ export const ColorGradeComparison: FC = () => {
           style={{ clipPath: `inset(0 0 0 ${sliderPosition}%)` }}
         >
           <img
-            src="/images/cinematic-nostalgia.jpg"
+            src="images/cinematic-nostalgia.jpg"
             alt="Rexmo Signature Kodak Emulsion Fine-Art Grade"
             className="w-full h-full object-cover filter contrast-[1.12] saturate-[1.15] sepia-[0.10]"
             draggable={false}
