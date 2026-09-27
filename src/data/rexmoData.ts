@@ -35,6 +35,8 @@ export interface CinemaFilmItem {
   coverImage: string;
   description: string;
   tag: string;
+  channelName?: string;
+  channelUrl?: string;
 }
 
 export interface GalleryItem {
@@ -769,7 +771,9 @@ export const CINEMA_FILMS_DATA: CinemaFilmItem[] = [
     localVideo: "/videos/video-reel-1.webm",
     coverImage: "/images/gallery-feature-1.jpg",
     description: "Shot across heritage courtyards with anamorphic prime lenses, documenting the unhurried cadence of familial grace and sacred rituals.",
-    tag: "4K Digital Cinema & Super 8"
+    tag: "4K Digital Cinema & Super 8",
+    channelName: "Rexmo Cinema Suite",
+    channelUrl: "https://www.youtube.com/@rexmophotography"
   },
   {
     id: "film-02",
@@ -782,7 +786,9 @@ export const CINEMA_FILMS_DATA: CinemaFilmItem[] = [
     localVideo: "/videos/video-reel-2.mp4",
     coverImage: "/images/gallery-feature-4.jpg",
     description: "Pristine cliffside twilight and Travancore architecture framing a tender celebration documented with broadcast fidelity.",
-    tag: "Royal Heritage Film"
+    tag: "Royal Heritage Film",
+    channelName: "Kerala Wedding Cinema",
+    channelUrl: "https://www.youtube.com/watch?v=mXx4s0uzfeo"
   },
   {
     id: "film-03",
@@ -795,7 +801,9 @@ export const CINEMA_FILMS_DATA: CinemaFilmItem[] = [
     localVideo: "/videos/video-reel-3.webm",
     coverImage: "/images/gallery-feature-2.jpg",
     description: "Sacred fire, temple bells, and the timeless vibrancy of traditional Vedic chants captured with poetic precision.",
-    tag: "Sacred Temple Rites"
+    tag: "Sacred Temple Rites",
+    channelName: "Tamil Wedding Cinema",
+    channelUrl: "https://www.youtube.com/watch?v=N75cXTI0im8"
   },
   {
     id: "film-04",
@@ -808,6 +816,38 @@ export const CINEMA_FILMS_DATA: CinemaFilmItem[] = [
     localVideo: "/videos/video-reel-4.webm",
     coverImage: "/images/story-2.jpg",
     description: "Tranquil backwaters and colonial charm meeting Super 8 nostalgia in a quiet, deeply emotive wedding monograph.",
-    tag: "Backwater Poetry"
+    tag: "Backwater Poetry",
+    channelName: "Kerala Heritage Films",
+    channelUrl: "https://www.youtube.com/watch?v=dQ95gd5e3ZE"
+  },
+  {
+    id: "film-05",
+    title: "The Grand Royal Dynasty",
+    couple: "Vikram & Sneha",
+    location: "Bangalore Palace, Karnataka",
+    duration: "05:12",
+    aspectRatio: "2.39:1 Anamorphic",
+    youtubeId: "Qj90PIBV4Ms",
+    localVideo: "/videos/video-reel-5.webm",
+    coverImage: "/images/story-3.jpg",
+    description: "Opulent royal baraat, magnificent grand ballroom chandelier glow, and regal South Indian celebration aesthetics.",
+    tag: "Palace Dynasty Film",
+    channelName: "The Kalakars Cinema",
+    channelUrl: "https://www.youtube.com/watch?v=Qj90PIBV4Ms"
+  },
+  {
+    id: "film-06",
+    title: "Monograph of Eternal Vows",
+    couple: "Karthik & Pooja",
+    location: "Kovalam Beach Resort, Tamil Nadu",
+    duration: "04:30",
+    aspectRatio: "16:9 Cinema",
+    youtubeId: "2g85rONTbrI",
+    localVideo: "/videos/video-reel-6.webm",
+    coverImage: "/images/story-1.jpg",
+    description: "Gentle Arabian Sea breeze and sun-drenched golden hour vows documented with fine-art analog Kodak emulation.",
+    tag: "Coastal Destination Monograph",
+    channelName: "Weva Photography Channel",
+    channelUrl: "https://www.youtube.com/watch?v=2g85rONTbrI"
   }
 ];

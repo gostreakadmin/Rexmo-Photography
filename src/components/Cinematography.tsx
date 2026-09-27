@@ -93,14 +93,24 @@ const FilmstripCard: FC<FilmstripCardProps> = ({ film, index, isSelected, onSele
       </div>
 
       {/* Card Info */}
-      <div>
-        <span className="text-[9px] font-mono uppercase tracking-widest text-[#A58A62] block mb-1">
-          {film.couple}
-        </span>
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-1 gap-2">
+          <span className="text-[9px] font-mono uppercase tracking-widest text-[#A58A62] block truncate">
+            {film.couple}
+          </span>
+          {film.channelName && (
+            <span className="inline-flex items-center gap-1 text-[8px] font-mono uppercase tracking-wider text-red-600 bg-red-50 border border-red-200/60 px-1.5 py-0.5 flex-shrink-0">
+              <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              <span className="truncate max-w-[100px]">{film.channelName}</span>
+            </span>
+          )}
+        </div>
         <h4 className="font-serif text-base text-[#171717] font-light leading-snug line-clamp-1 mb-1">
           {film.title}
         </h4>
-        <p className="text-[11px] text-[#6F6F6F] font-mono">
+        <p className="text-[11px] text-[#6F6F6F] font-mono truncate">
           {film.location}
         </p>
       </div>
@@ -120,6 +130,7 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
   const [activeFilm, setActiveFilm] = useState<CinemaFilmItem>(CINEMA_FILMS_DATA[0]);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isPlayingInline, setIsPlayingInline] = useState(false);
+  const [isYouTubeInline, setIsYouTubeInline] = useState(false);
   const [isScreenHovered, setIsScreenHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { t } = useLanguage();
@@ -215,120 +226,161 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
               {/* Screen Area: 21/9 Cinematic Anamorphic Ratio */}
               <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden bg-black">
                 
-                {/* Background Ambient Video Loop */}
-                <video
-                  key={activeFilm.id}
-                  ref={videoRef}
-                  src={activeFilm.localVideo}
-                  poster={activeFilm.coverImage}
-                  autoPlay={isScreenHovered || isPlayingInline}
-                  loop
-                  muted
-                  playsInline
-                  className={`w-full h-full object-cover object-center transition-all duration-700 ${
-                    isScreenHovered || isPlayingInline ? 'opacity-95 scale-102' : 'opacity-80 scale-100'
-                  }`}
-                />
-
-                {/* Dark Cinematic Gradient Vignette */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/35 pointer-events-none" />
-
-                {/* Letterbox Bars Emulation */}
-                <div className="absolute top-0 left-0 right-0 h-3 sm:h-5 bg-black/90 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 right-0 h-3 sm:h-5 bg-black/90 pointer-events-none" />
-
-                {/* Top Corner HUD Badges */}
-                <div className="absolute top-6 left-6 flex items-center space-x-3 pointer-events-none">
-                  <div className="flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 text-[10px] font-mono tracking-widest text-[#A58A62] uppercase">
-                    <span className={`w-2 h-2 rounded-full ${isScreenHovered || isPlayingInline ? 'bg-red-500 animate-ping' : 'bg-white/60'} inline-block`} />
-                    <span>{isScreenHovered || isPlayingInline ? 'LIVE PLAYING (CURSOR HOVER)' : 'REC 4K PRORES'}</span>
-                  </div>
-                  <div className="bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 text-[10px] font-mono tracking-widest text-white/80 uppercase hidden sm:block">
-                    {activeFilm.aspectRatio}
-                  </div>
-                </div>
-
-                <div className="absolute top-6 right-6 hidden sm:flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 text-[10px] font-mono tracking-widest text-white/80 uppercase pointer-events-none">
-                  <Sparkles size={12} className="text-[#A58A62]" />
-                  <span>SUPER 8 EMULSION</span>
-                </div>
-
-                {/* Play Button Trigger in Center */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
-                  <button
-                    onClick={() => handlePlayActiveFilm()}
-                    aria-label={`Play film: ${activeFilm.title}`}
-                    className={`group/btn relative rounded-full border border-white/40 bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-[#A58A62] hover:border-[#A58A62] transition-all duration-300 transform shadow-2xl mb-4 ${
-                      isScreenHovered || isPlayingInline ? 'w-16 h-16 sm:w-18 sm:h-18 scale-90' : 'w-20 h-20 sm:w-24 sm:h-24 group-hover:scale-110'
-                    }`}
-                  >
-                    <div className="absolute inset-0 rounded-full border border-white/20 animate-ping" />
-                    <Play size={isScreenHovered || isPlayingInline ? 24 : 32} className="ml-1 fill-white" />
-                  </button>
-
-                  <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-[#A58A62] mb-1">
-                    {isScreenHovered ? 'HOVER PLAYING • ' : ''}{activeFilm.tag} • DURATION {activeFilm.duration}
-                  </span>
-                  <h3 className="font-serif text-2xl sm:text-4xl text-white font-light tracking-wide max-w-2xl drop-shadow-md">
-                    "{activeFilm.title}"
-                  </h3>
-                  <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/80 mt-2">
-                    FEATURING {activeFilm.couple} • {activeFilm.location}
-                  </p>
-                </div>
-
-                {/* Micro Bottom HUD Details Bar */}
-                <div className="hidden sm:flex absolute bottom-5 left-8 right-8 justify-between items-center z-10 text-white/70 text-xs font-mono">
-                  <div className="flex items-center space-x-6">
-                    {/* Animated Equalizer Wave */}
-                    <div className="flex items-end space-x-1 h-3.5" title="Live Ambient Audio Track">
-                      <span className={`w-0.5 bg-[#A58A62] h-2 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_0.8s_ease-in-out_infinite]' : ''}`} />
-                      <span className={`w-0.5 bg-[#A58A62] h-3.5 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_1.2s_ease-in-out_infinite_0.2s]' : ''}`} />
-                      <span className={`w-0.5 bg-[#A58A62] h-1.5 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_0.9s_ease-in-out_infinite_0.4s]' : ''}`} />
-                      <span className={`w-0.5 bg-[#A58A62] h-3 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_1.1s_ease-in-out_infinite_0.1s]' : ''}`} />
-                      <span className={`w-0.5 bg-[#A58A62] h-2 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_0.7s_ease-in-out_infinite_0.3s]' : ''}`} />
+                {isYouTubeInline ? (
+                  <div className="w-full h-full relative">
+                    <iframe
+                      src={`https://www.youtube-nocookie.com/embed/${activeFilm.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+                      title={activeFilm.title}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                    <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                      <span className="bg-red-600/90 text-white text-[9px] font-mono uppercase px-2 py-1 tracking-widest hidden sm:inline-block">
+                        STREAMING YOUTUBE
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsYouTubeInline(false);
+                        }}
+                        className="bg-black/85 hover:bg-black text-white px-3 py-1.5 text-[10px] font-mono border border-white/30 flex items-center gap-1.5 transition-colors shadow-lg"
+                      >
+                        <X size={12} />
+                        <span>RETURN TO PRORES HOVER</span>
+                      </button>
                     </div>
-                    <span>SOUNDSCAPE: ORIGINAL MASTER SCORE</span>
-                    <span>•</span>
-                    <span>TIMECODE 00:03:42:18</span>
                   </div>
+                ) : (
+                  <>
+                    {/* Background Ambient Video Loop */}
+                    <video
+                      key={activeFilm.id}
+                      ref={videoRef}
+                      src={activeFilm.localVideo}
+                      poster={activeFilm.coverImage}
+                      autoPlay={isScreenHovered || isPlayingInline}
+                      loop
+                      muted
+                      playsInline
+                      className={`w-full h-full object-cover object-center transition-all duration-700 ${
+                        isScreenHovered || isPlayingInline ? 'opacity-95 scale-102' : 'opacity-80 scale-100'
+                      }`}
+                    />
 
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleInlinePlay();
-                      }}
-                      className="px-3 py-1 bg-black/60 border border-white/20 text-white/90 hover:text-white hover:border-[#A58A62] transition-colors flex items-center space-x-1.5 text-[10px]"
-                    >
-                      <MonitorPlay size={12} />
-                      <span>{isPlayingInline ? 'PAUSE LOOP' : 'LOCK CONTINUOUS LOOP'}</span>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePlayActiveFilm();
-                      }}
-                      className="text-[#A58A62] hover:text-white transition-colors flex items-center space-x-1.5"
-                    >
-                      <span>EXPAND THEATRE</span>
-                      <Maximize2 size={13} />
-                    </button>
-                  </div>
-                </div>
+                    {/* Dark Cinematic Gradient Vignette */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/35 pointer-events-none" />
+
+                    {/* Letterbox Bars Emulation */}
+                    <div className="absolute top-0 left-0 right-0 h-3 sm:h-5 bg-black/90 pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 right-0 h-3 sm:h-5 bg-black/90 pointer-events-none" />
+
+                    {/* Top Corner HUD Badges */}
+                    <div className="absolute top-6 left-6 flex items-center space-x-3 pointer-events-none">
+                      <div className="flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 text-[10px] font-mono tracking-widest text-[#A58A62] uppercase">
+                        <span className={`w-2 h-2 rounded-full ${isScreenHovered || isPlayingInline ? 'bg-red-500 animate-ping' : 'bg-white/60'} inline-block`} />
+                        <span>{isScreenHovered || isPlayingInline ? 'LIVE PLAYING (CURSOR HOVER)' : 'REC 4K PRORES'}</span>
+                      </div>
+                      <div className="bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 text-[10px] font-mono tracking-widest text-white/80 uppercase hidden sm:block">
+                        {activeFilm.aspectRatio}
+                      </div>
+                    </div>
+
+                    <div className="absolute top-6 right-6 hidden sm:flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 text-[10px] font-mono tracking-widest text-white/80 uppercase pointer-events-none">
+                      <Sparkles size={12} className="text-[#A58A62]" />
+                      <span>{activeFilm.channelName ? `CHANNEL: ${activeFilm.channelName}` : 'SUPER 8 EMULSION'}</span>
+                    </div>
+
+                    {/* Play Button Trigger in Center */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
+                      <button
+                        onClick={() => handlePlayActiveFilm()}
+                        aria-label={`Play film: ${activeFilm.title}`}
+                        className={`group/btn relative rounded-full border border-white/40 bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-[#A58A62] hover:border-[#A58A62] transition-all duration-300 transform shadow-2xl mb-4 ${
+                          isScreenHovered || isPlayingInline ? 'w-16 h-16 sm:w-18 sm:h-18 scale-90' : 'w-20 h-20 sm:w-24 sm:h-24 group-hover:scale-110'
+                        }`}
+                      >
+                        <div className="absolute inset-0 rounded-full border border-white/20 animate-ping" />
+                        <Play size={isScreenHovered || isPlayingInline ? 24 : 32} className="ml-1 fill-white" />
+                      </button>
+
+                      <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-[#A58A62] mb-1">
+                        {isScreenHovered ? 'HOVER PLAYING • ' : ''}{activeFilm.tag} • DURATION {activeFilm.duration}
+                      </span>
+                      <h3 className="font-serif text-2xl sm:text-4xl text-white font-light tracking-wide max-w-2xl drop-shadow-md">
+                        "{activeFilm.title}"
+                      </h3>
+                      <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/80 mt-2">
+                        FEATURING {activeFilm.couple} • {activeFilm.location}
+                      </p>
+                    </div>
+
+                    {/* Micro Bottom HUD Details Bar */}
+                    <div className="hidden sm:flex absolute bottom-5 left-8 right-8 justify-between items-center z-10 text-white/70 text-xs font-mono">
+                      <div className="flex items-center space-x-6">
+                        {/* Animated Equalizer Wave */}
+                        <div className="flex items-end space-x-1 h-3.5" title="Live Ambient Audio Track">
+                          <span className={`w-0.5 bg-[#A58A62] h-2 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_0.8s_ease-in-out_infinite]' : ''}`} />
+                          <span className={`w-0.5 bg-[#A58A62] h-3.5 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_1.2s_ease-in-out_infinite_0.2s]' : ''}`} />
+                          <span className={`w-0.5 bg-[#A58A62] h-1.5 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_0.9s_ease-in-out_infinite_0.4s]' : ''}`} />
+                          <span className={`w-0.5 bg-[#A58A62] h-3 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_1.1s_ease-in-out_infinite_0.1s]' : ''}`} />
+                          <span className={`w-0.5 bg-[#A58A62] h-2 ${isScreenHovered || isPlayingInline ? 'animate-[float-slow_0.7s_ease-in-out_infinite_0.3s]' : ''}`} />
+                        </div>
+                        <span>SOUNDSCAPE: ORIGINAL MASTER SCORE</span>
+                        <span>•</span>
+                        <span>TIMECODE 00:03:42:18</span>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsYouTubeInline(true);
+                          }}
+                          className="px-3 py-1 bg-red-600/80 hover:bg-red-600 border border-red-400 text-white transition-colors flex items-center space-x-1.5 text-[10px]"
+                        >
+                          <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                          </svg>
+                          <span>STREAM CHANNEL FILM</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleInlinePlay();
+                          }}
+                          className="px-3 py-1 bg-black/60 border border-white/20 text-white/90 hover:text-white hover:border-[#A58A62] transition-colors flex items-center space-x-1.5 text-[10px]"
+                        >
+                          <MonitorPlay size={12} />
+                          <span>{isPlayingInline ? 'PAUSE LOOP' : 'LOCK CONTINUOUS LOOP'}</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePlayActiveFilm();
+                          }}
+                          className="text-[#A58A62] hover:text-white transition-colors flex items-center space-x-1.5"
+                        >
+                          <span>EXPAND THEATRE</span>
+                          <Maximize2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </TiltCard>
         </div>
 
-        {/* Cinematography Filmstrip Reel: 4 Interactive Chapters with HOVER-TO-PLAY */}
+        {/* Cinematography Filmstrip Reel: 6 Interactive Chapters with HOVER-TO-PLAY */}
         <div className="mt-8">
           <div className="flex items-center justify-between pb-4 border-b border-[#E7E4DE] text-[11px] font-mono tracking-widest uppercase text-[#6F6F6F]">
             <span>HOVER ANY REEL TO PREVIEW MOTION</span>
-            <span>{CINEMA_FILMS_DATA.length} ARCHIVAL REELS</span>
+            <span>{CINEMA_FILMS_DATA.length} ARCHIVAL REELS • YOUTUBE CHANNELS ATTACHED</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-6">
             {CINEMA_FILMS_DATA.map((film, index) => (
               <FilmstripCard
                 key={film.id}
@@ -399,9 +451,24 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
             {/* Top Bar */}
             <div className="flex items-center justify-between px-6 py-4 bg-[#171717] border-b border-white/10 text-white">
               <div>
-                <span className="text-[10px] font-mono tracking-widest text-[#A58A62] uppercase block">
-                  REXMO CINEMA SUITE • 4K UHD
-                </span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[10px] font-mono tracking-widest text-[#A58A62] uppercase block">
+                    REXMO CINEMA SUITE • 4K UHD
+                  </span>
+                  {activeFilm.channelName && (
+                    <a
+                      href={activeFilm.channelUrl || `https://www.youtube.com/watch?v=${activeFilm.youtubeId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[9px] font-mono text-red-400 bg-red-950/60 border border-red-800/40 px-2 py-0.5 uppercase tracking-wider flex items-center gap-1 hover:bg-red-900/60 transition-colors"
+                    >
+                      <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                      <span>CHANNEL: {activeFilm.channelName}</span>
+                    </a>
+                  )}
+                </div>
                 <h3 className="font-serif text-lg sm:text-xl font-light">
                   {activeFilm.title} — {activeFilm.couple}
                 </h3>
