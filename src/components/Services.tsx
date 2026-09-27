@@ -1,6 +1,9 @@
 import { useState, type FC } from 'react';
 import { ArrowUpRight, Check } from 'lucide-react';
 import { SERVICES_DATA, type ServiceItem } from '../data/rexmoData';
+import { TiltCard } from './TiltCard';
+import { useLanguage } from '../context/LanguageContext';
+import { soundEngine } from '../utils/soundEffects';
 
 interface ServicesProps {
   onSelectService: (service: ServiceItem) => void;
@@ -9,6 +12,17 @@ interface ServicesProps {
 
 export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) => {
   const [selectedModalService, setSelectedModalService] = useState<ServiceItem | null>(null);
+  const { t } = useLanguage();
+
+  const handleOpenDetails = (service: ServiceItem) => {
+    soundEngine.playShutterClick();
+    setSelectedModalService(service);
+  };
+
+  const handleInquire = (service: ServiceItem) => {
+    soundEngine.playGoldenChime();
+    onSelectService(service);
+  };
 
   return (
     <section id="services" className="py-24 sm:py-32 bg-[#FFFFFF] border-t border-[#E7E4DE] relative">
@@ -20,17 +34,18 @@ export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) 
             <div className="flex items-center space-x-3 text-[11px] font-mono tracking-[0.25em] text-[#6F6F6F] uppercase mb-3">
               <span className="text-[#A58A62] font-bold">04</span>
               <span>/</span>
-              <span>BESPOKE OFFERINGS</span>
+              <span>{t('services.tag', 'BESPOKE OFFERINGS')}</span>
             </div>
             <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-light text-[#171717] tracking-tight">
-              CURATED <br />
-              <span className="italic font-normal text-[#A58A62]">COLLECTIONS</span>
+              {t('services.title1', 'CURATED')} <br />
+              <span className="italic font-normal text-[#A58A62]">
+                {t('services.title2', 'COLLECTIONS')}
+              </span>
             </h2>
           </div>
-          <div className="max-w-md text-sm text-[#6F6F6F] leading-relaxed">
+          <div className="max-w-md text-sm text-[#6F6F6F] leading-relaxed font-light">
             <p>
-              Bespoke photography experiences designed for those who appreciate fine art, 
-              nuanced light, and preservation-grade storytelling.
+              {t('services.desc', 'Bespoke photography experiences designed for those who appreciate fine art, nuanced light, and preservation-grade storytelling.')}
             </p>
           </div>
         </div>
@@ -38,7 +53,6 @@ export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) 
         {/* Editorial Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-16">
           {SERVICES_DATA.map((service, index) => {
-            // Give the first service (Weddings) a prominent 2-column or prominent card layout on desktop
             const isFeatured = index === 0;
 
             return (
@@ -48,44 +62,49 @@ export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) 
                   isFeatured ? 'md:col-span-2 lg:col-span-2' : 'col-span-1'
                 }`}
               >
-                {/* Image Section */}
-                <div 
-                  data-cursor="explore"
-                  onClick={() => setSelectedModalService(service)}
-                  className={`relative overflow-hidden cursor-pointer ${isFeatured ? 'h-[320px] sm:h-[400px]' : 'h-[280px] sm:h-[320px]'}`}
-                >
-                  <img
-                    src={service.image}
-                    alt={`Rexmo ${service.title} Photography`}
-                    loading="lazy"
-                    className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
-
-                  {/* Top Badge */}
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-mono tracking-widest text-[#171717] uppercase">
-                    COLLECTION {service.number}
-                  </div>
-
-                  {/* Floating Action Arrow */}
-                  <button
-                    onClick={() => setSelectedModalService(service)}
-                    aria-label={`View details for ${service.title}`}
-                    className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-[#171717] group-hover:bg-[#A58A62] group-hover:text-white transition-all duration-300"
+                {/* Image Section wrapped in 3D Tilt */}
+                <TiltCard maxTilt={4} scale={1.01} glare={true}>
+                  <div 
+                    data-cursor="explore"
+                    onClick={() => handleOpenDetails(service)}
+                    className={`relative overflow-hidden cursor-pointer ${isFeatured ? 'h-[320px] sm:h-[400px]' : 'h-[280px] sm:h-[320px]'}`}
                   >
-                    <ArrowUpRight size={18} className="transform group-hover:rotate-45 transition-transform duration-300" />
-                  </button>
+                    <img
+                      src={service.image}
+                      alt={`Rexmo ${service.title} Photography`}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
 
-                  {/* Overlay Title on Image */}
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <span className="text-[10px] font-mono tracking-[0.25em] text-[#A58A62] uppercase block">
-                      {service.subtitle}
-                    </span>
-                    <h3 className="font-serif text-2xl sm:text-3xl font-light text-white tracking-wide">
-                      {service.title}
-                    </h3>
+                    {/* Top Badge */}
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-mono tracking-widest text-[#171717] uppercase">
+                      COLLECTION {service.number}
+                    </div>
+
+                    {/* Floating Action Arrow */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenDetails(service);
+                      }}
+                      aria-label={`View details for ${service.title}`}
+                      className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-[#171717] group-hover:bg-[#A58A62] group-hover:text-white transition-all duration-300"
+                    >
+                      <ArrowUpRight size={18} className="transform group-hover:rotate-45 transition-transform duration-300" />
+                    </button>
+
+                    {/* Overlay Title on Image */}
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <span className="text-[10px] font-mono tracking-[0.25em] text-[#A58A62] uppercase block">
+                        {service.subtitle}
+                      </span>
+                      <h3 className="font-serif text-2xl sm:text-3xl font-light text-white tracking-wide">
+                        {service.title}
+                      </h3>
+                    </div>
                   </div>
-                </div>
+                </TiltCard>
 
                 {/* Content Section */}
                 <div className="p-6 sm:p-8 flex flex-col justify-between flex-grow">
@@ -108,18 +127,18 @@ export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) 
                   {/* Buttons */}
                   <div className="flex items-center justify-between pt-4 border-t border-[#E7E4DE]">
                     <button
-                      onClick={() => setSelectedModalService(service)}
+                      onClick={() => handleOpenDetails(service)}
                       className="text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#A58A62] transition-colors flex items-center space-x-1"
                     >
-                      <span>VIEW DETAILS</span>
+                      <span>{t('services.view_details', 'VIEW DETAILS')}</span>
                       <span>→</span>
                     </button>
 
                     <button
-                      onClick={() => onSelectService(service)}
+                      onClick={() => handleInquire(service)}
                       className="px-4 py-2 border border-[#171717] text-[11px] uppercase tracking-[0.2em] font-semibold text-[#171717] hover:bg-[#171717] hover:text-white transition-colors"
                     >
-                      INQUIRE
+                      {t('services.inquire_btn', 'INQUIRE')}
                     </button>
                   </div>
                 </div>
@@ -142,7 +161,10 @@ export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) 
             </p>
           </div>
           <button
-            onClick={() => onOpenInquiry('Custom Commission')}
+            onClick={() => {
+              soundEngine.playGoldenChime();
+              onOpenInquiry('Custom Commission');
+            }}
             className="px-6 py-3 bg-[#171717] text-white text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#A58A62] transition-colors flex-shrink-0"
           >
             REQUEST CUSTOM ITINERARY →
@@ -199,6 +221,7 @@ export const Services: FC<ServicesProps> = ({ onSelectService, onOpenInquiry }) 
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-[#E7E4DE]">
               <button
                 onClick={() => {
+                  soundEngine.playGoldenChime();
                   const s = selectedModalService.title;
                   setSelectedModalService(null);
                   onOpenInquiry(s);
