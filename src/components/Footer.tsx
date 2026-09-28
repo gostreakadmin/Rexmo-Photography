@@ -2,19 +2,24 @@ import type { FC } from 'react';
 import { ArrowUp, Share2 } from 'lucide-react';
 import { STUDIO_INFO } from '../data/rexmoData';
 
-export const Footer: FC = () => {
+interface FooterProps {
+  onNavigate?: (page: string) => void;
+}
+
+export const Footer: FC<FooterProps> = ({ onNavigate }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const navLinks = [
-    { label: 'Home', href: '#home' },
-    { label: 'About', href: '#about' },
-    { label: 'Services', href: '#services' },
-    { label: 'Gallery', href: '#gallery' },
-    { label: 'Cinematography', href: '#cinematography' },
-    { label: 'Destinations', href: '#destinations' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Home', page: 'home' },
+    { label: 'About', page: 'about' },
+    { label: 'Services', page: 'services' },
+    { label: 'Gallery', page: 'gallery' },
+    { label: 'Cinematography', page: 'cinematography' },
+    { label: 'Destinations', page: 'destinations' },
+    { label: 'Stories', page: 'stories' },
+    { label: 'Contact', page: 'contact' },
   ];
 
   return (
@@ -26,8 +31,13 @@ export const Footer: FC = () => {
           
           {/* Col 1: Brand Info (5 cols) */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="flex flex-col">
-              <span className="font-serif text-3xl sm:text-4xl tracking-[0.25em] font-light text-white uppercase">
+            <div 
+              onClick={() => {
+                if (onNavigate) onNavigate('home');
+              }}
+              className="flex flex-col cursor-pointer group"
+            >
+              <span className="font-serif text-3xl sm:text-4xl tracking-[0.25em] font-light text-white group-hover:text-[#A58A62] transition-colors uppercase">
                 REXMO
               </span>
               <span className="text-[10px] tracking-[0.4em] text-[#A58A62] font-mono uppercase mt-0.5">
@@ -55,7 +65,11 @@ export const Footer: FC = () => {
               {navLinks.map((link) => (
                 <li key={link.label}>
                   <a
-                    href={link.href}
+                    href={`#${link.page}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (onNavigate) onNavigate(link.page);
+                    }}
                     className="text-xs text-white/70 hover:text-[#A58A62] transition-colors uppercase tracking-widest font-mono"
                   >
                     {link.label}

@@ -11,9 +11,10 @@ import { soundEngine } from '../utils/soundEffects';
 interface HeroProps {
   onExploreWork: () => void;
   onOpenInquiry: () => void;
+  onWatchCinema?: () => void;
 }
 
-export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
+export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry, onWatchCinema }) => {
   const [scrollY, setScrollY] = useState(0);
   const [studioTime, setStudioTime] = useState('');
   const [isHeroHovered, setIsHeroHovered] = useState(false);
@@ -214,13 +215,13 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
                   data-cursor="play"
                   onClick={() => {
                     soundEngine.playShutterClick();
-                    const cinemaEl = document.getElementById('cinematography');
-                    if (cinemaEl) {
-                      cinemaEl.scrollIntoView({ behavior: 'smooth' });
-                      setTimeout(() => {
-                        const playBtn = document.getElementById('cinema-play-button');
-                        if (playBtn) playBtn.click();
-                      }, 500);
+                    if (onWatchCinema) {
+                      onWatchCinema();
+                    } else {
+                      const cinemaEl = document.getElementById('cinematography');
+                      if (cinemaEl) {
+                        cinemaEl.scrollIntoView({ behavior: 'smooth' });
+                      }
                     }
                   }}
                   onMouseEnter={handleHeroMouseEnter}

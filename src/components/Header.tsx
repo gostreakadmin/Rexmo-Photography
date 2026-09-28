@@ -1,17 +1,17 @@
 import { useState, useEffect, type FC, type MouseEvent } from 'react';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { STUDIO_INFO } from '../data/rexmoData';
-import { LanguageSwitcher } from './LanguageSwitcher';
 import { SoundToggle } from './SoundToggle';
 import { useLanguage } from '../context/LanguageContext';
 import { soundEngine } from '../utils/soundEffects';
 
 interface HeaderProps {
   onOpenInquiry: () => void;
-  activeSection: string;
+  activePage: string;
+  onNavigate: (page: string) => void;
 }
 
-export const Header: FC<HeaderProps> = ({ onOpenInquiry, activeSection }) => {
+export const Header: FC<HeaderProps> = ({ onOpenInquiry, activePage, onNavigate }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
@@ -29,23 +29,21 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activeSection }) => {
   }, []);
 
   const navLinks = [
-    { label: t('nav.home', 'HOME'), href: '#home', id: 'home' },
-    { label: t('nav.about', 'ABOUT'), href: '#about', id: 'about' },
-    { label: t('nav.services', 'SERVICES'), href: '#services', id: 'services' },
-    { label: t('nav.gallery', 'GALLERY'), href: '#gallery', id: 'gallery' },
-    { label: t('nav.cinematography', 'CINEMATOGRAPHY'), href: '#cinematography', id: 'cinematography' },
-    { label: t('nav.destinations', 'DESTINATIONS'), href: '#destinations', id: 'destinations' },
-    { label: t('nav.contact', 'CONTACT'), href: '#contact', id: 'contact' },
+    { label: 'HOME', page: 'home' },
+    { label: 'ABOUT', page: 'about' },
+    { label: 'SERVICES', page: 'services' },
+    { label: 'GALLERY', page: 'gallery' },
+    { label: 'CINEMATOGRAPHY', page: 'cinematography' },
+    { label: 'DESTINATIONS', page: 'destinations' },
+    { label: 'STORIES', page: 'stories' },
+    { label: 'CONTACT', page: 'contact' },
   ];
 
-  const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, page: string) => {
     e.preventDefault();
     soundEngine.playShutterClick();
     setMobileMenuOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
+    onNavigate(page);
   };
 
   const handleInquiryClick = () => {
@@ -66,7 +64,7 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activeSection }) => {
           {/* Brand Logo */}
           <a
             href="#home"
-            onClick={(e) => handleNavClick(e, '#home')}
+            onClick={(e) => handleNavClick(e, 'home')}
             className="group flex flex-col items-start text-left focus:outline-none flex-shrink-0"
           >
             <span className="font-serif text-2xl sm:text-3xl tracking-[0.25em] font-light text-[#171717] group-hover:text-[#A58A62] transition-colors uppercase">
@@ -80,12 +78,12 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activeSection }) => {
           {/* Desktop Navigation */}
           <nav className="hidden xl:flex items-center space-x-7">
             {navLinks.map((link) => {
-              const isActive = activeSection === link.id;
+              const isActive = activePage === link.page;
               return (
                 <a
-                  key={link.id}
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
+                  key={link.page}
+                  href={`#${link.page}`}
+                  onClick={(e) => handleNavClick(e, link.page)}
                   className={`text-[11px] tracking-[0.2em] font-medium transition-all duration-300 relative py-1 ${
                     isActive
                       ? 'text-[#171717] font-semibold'
@@ -101,11 +99,8 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activeSection }) => {
             })}
           </nav>
 
-          {/* Right Action Tools: Language Switcher, Sound Toggle, and Inquire Button */}
+          {/* Right Action Tools: Sound Toggle, and Inquire Button */}
           <div className="hidden lg:flex items-center space-x-3.5 flex-shrink-0">
-            {/* Regional Branch Language Switcher */}
-            <LanguageSwitcher />
-
             {/* Studio Sound Effects Toggle */}
             <SoundToggle />
 
@@ -124,7 +119,6 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activeSection }) => {
 
           {/* Mobile Right Controls */}
           <div className="flex items-center space-x-2 lg:hidden">
-            <LanguageSwitcher compact />
             <SoundToggle compact />
 
             <button
@@ -156,7 +150,6 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activeSection }) => {
           </div>
 
           <div className="flex items-center space-x-2">
-            <LanguageSwitcher compact />
             <button
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close menu"
@@ -171,16 +164,18 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activeSection }) => {
         <div className="flex flex-col space-y-4 my-auto overflow-y-auto py-4">
           {navLinks.map((link, idx) => (
             <a
-              key={link.id}
-              href={link.href}
-              onClick={(e) => handleNavClick(e, link.href)}
+              key={link.page}
+              href={`#${link.page}`}
+              onClick={(e) => handleNavClick(e, link.page)}
               className="group flex items-baseline justify-between py-2 border-b border-[#E7E4DE]/60"
             >
               <div className="flex items-baseline space-x-3">
                 <span className="text-[10px] font-mono text-[#A58A62]">
                   0{idx + 1}
                 </span>
-                <span className="font-serif text-xl sm:text-2xl tracking-[0.12em] text-[#171717] group-hover:text-[#A58A62] group-hover:translate-x-2 transition-all duration-300">
+                <span className={`font-serif text-xl sm:text-2xl tracking-[0.12em] transition-all duration-300 ${
+                  activePage === link.page ? 'text-[#A58A62] font-normal translate-x-2' : 'text-[#171717] group-hover:text-[#A58A62] group-hover:translate-x-2'
+                }`}>
                   {link.label}
                 </span>
               </div>

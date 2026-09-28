@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode, type FC } from 'react';
+import { createContext, useContext, useEffect, type ReactNode, type FC } from 'react';
 import { TRANSLATIONS, LANGUAGES, type SupportedLanguage, type LanguageOption } from '../i18n/translations';
 
 interface LanguageContextType {
@@ -12,47 +12,31 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<SupportedLanguage>(() => {
-    try {
-      const saved = localStorage.getItem('rexmo_lang') as SupportedLanguage;
-      if (saved && TRANSLATIONS[saved]) return saved;
-    } catch {
-      // ignore
-    }
-    return 'en';
-  });
-
-  const setLanguage = (lang: SupportedLanguage) => {
-    setLanguageState(lang);
-    try {
-      localStorage.setItem('rexmo_lang', lang);
-    } catch {
-      // ignore
-    }
-  };
-
   useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-  }, [language]);
+    try {
+      localStorage.removeItem('rexmo_lang');
+    } catch {
+      // ignore
+    }
+    document.documentElement.lang = 'en';
+    document.documentElement.dir = 'ltr';
+  }, []);
 
   const t = (key: string, fallback?: string): string => {
-    const dict = TRANSLATIONS[language] || TRANSLATIONS.en;
-    if (dict[key]) return dict[key];
-    if (TRANSLATIONS.en[key]) return TRANSLATIONS.en[key];
+    if (TRANSLATIONS.en && TRANSLATIONS.en[key]) return TRANSLATIONS.en[key];
     return fallback || key;
   };
 
-  const currentLanguage = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
+  const currentLanguage = LANGUAGES[0]; // English
 
   return (
     <LanguageContext.Provider
       value={{
-        language,
-        setLanguage,
+        language: 'en',
+        setLanguage: () => {},
         t,
         currentLanguage,
-        languages: LANGUAGES
+        languages: [currentLanguage]
       }}
     >
       {children}
