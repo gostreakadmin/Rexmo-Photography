@@ -154,7 +154,11 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
     if (film) {
       setActiveFilm(film);
     }
-    setIsVideoModalOpen(true);
+    setIsYouTubeInline(true);
+    const theatreElement = document.getElementById('cinema-theatre');
+    if (theatreElement) {
+      theatreElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   const handleSelectFilm = (film: CinemaFilmItem) => {
@@ -218,7 +222,13 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
         <div className="pt-16">
           <TiltCard maxTilt={3} scale={1.01} glare={true}>
             <div 
+              id="cinema-theatre"
               data-cursor="play"
+              onClick={() => {
+                if (!isYouTubeInline) {
+                  handlePlayActiveFilm();
+                }
+              }}
               onMouseEnter={handleMouseEnterScreen}
               onMouseLeave={handleMouseLeaveScreen}
               className="relative group overflow-hidden bg-[#171717] border border-[#E7E4DE] shadow-2xl cursor-pointer"
@@ -229,10 +239,10 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
                 {isYouTubeInline ? (
                   <div className="w-full h-full relative">
                     <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${activeFilm.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+                      src={`https://www.youtube-nocookie.com/embed/${activeFilm.youtubeId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
                       title={activeFilm.title}
                       className="w-full h-full border-0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
                     />
                     <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
@@ -247,7 +257,7 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
                         className="bg-black/85 hover:bg-black text-white px-3 py-1.5 text-[10px] font-mono border border-white/30 flex items-center gap-1.5 transition-colors shadow-lg"
                       >
                         <X size={12} />
-                        <span>RETURN TO PRORES HOVER</span>
+                        <span>RETURN TO PREVIEW</span>
                       </button>
                     </div>
                   </div>
@@ -294,7 +304,11 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
                     {/* Play Button Trigger in Center */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
                       <button
-                        onClick={() => handlePlayActiveFilm()}
+                        id="cinema-play-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePlayActiveFilm();
+                        }}
                         aria-label={`Play film: ${activeFilm.title}`}
                         className={`group/btn relative rounded-full border border-white/40 bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-[#A58A62] hover:border-[#A58A62] transition-all duration-300 transform shadow-2xl mb-4 ${
                           isScreenHovered || isPlayingInline ? 'w-16 h-16 sm:w-18 sm:h-18 scale-90' : 'w-20 h-20 sm:w-24 sm:h-24 group-hover:scale-110'
@@ -357,7 +371,7 @@ export const Cinematography: FC<CinematographyProps> = ({ onOpenInquiry }) => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handlePlayActiveFilm();
+                            setIsVideoModalOpen(true);
                           }}
                           className="text-[#A58A62] hover:text-white transition-colors flex items-center space-x-1.5"
                         >

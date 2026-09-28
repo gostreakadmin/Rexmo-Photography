@@ -212,6 +212,17 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry }) => {
               <TiltCard maxTilt={5} scale={1.01} glare={true}>
                 <div 
                   data-cursor="play"
+                  onClick={() => {
+                    soundEngine.playShutterClick();
+                    const cinemaEl = document.getElementById('cinematography');
+                    if (cinemaEl) {
+                      cinemaEl.scrollIntoView({ behavior: 'smooth' });
+                      setTimeout(() => {
+                        const playBtn = document.getElementById('cinema-play-button');
+                        if (playBtn) playBtn.click();
+                      }, 500);
+                    }
+                  }}
                   onMouseEnter={handleHeroMouseEnter}
                   onMouseLeave={handleHeroMouseLeave}
                   className="relative overflow-hidden bg-[#171717] border border-[#E7E4DE] aspect-[4/3] sm:aspect-[16/11] lg:aspect-[16/11] shadow-[0_20px_50px_rgba(0,0,0,0.06)] group cursor-pointer"

@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/Rexmo-Photography/',
+  base: process.env.GITHUB_ACTIONS ? '/Rexmo-Photography/' : './',
   plugins: [
     react(),
     tailwindcss(),
