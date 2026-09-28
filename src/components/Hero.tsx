@@ -95,7 +95,7 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry, onWatchCinem
       <GoldenParticles count={30} className="z-0" />
 
       {/* Editorial Top Metadata Strip */}
-      <div className="max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-12 pt-4 relative z-10">
+      <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8 pt-4 relative z-10">
         <div className="flex flex-wrap items-center justify-between border-b border-[#E7E4DE] pb-4 text-[11px] sm:text-xs tracking-[0.25em] uppercase text-[#6F6F6F] gap-2">
           <div className="flex items-center space-x-2">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#A58A62] animate-pulse" />
@@ -114,7 +114,7 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry, onWatchCinem
       </div>
 
       {/* Main Hero Container */}
-      <div className="max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-12 my-auto py-8 lg:py-12 relative z-10">
+      <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8 my-auto py-8 lg:py-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left Editorial Text Column (5 cols) */}
@@ -319,7 +319,7 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry, onWatchCinem
       </div>
 
       {/* Bottom Scroll Indicator Strip */}
-      <div className="max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-12 relative z-10">
+      <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         <div className="border-t border-[#E7E4DE] pt-4 flex justify-between items-center text-xs tracking-[0.2em] uppercase text-[#6F6F6F]">
           <div className="flex items-center space-x-2">
             <span className="font-mono text-[#A58A62]">01</span>

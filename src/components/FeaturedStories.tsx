@@ -40,7 +40,7 @@ export const FeaturedStories: FC<FeaturedStoriesProps> = ({ onOpenInquiry, onOpe
         1992
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+      <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between pb-12 border-b border-[#E7E4DE] gap-6">

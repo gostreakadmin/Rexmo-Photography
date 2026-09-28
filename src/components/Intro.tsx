@@ -17,7 +17,7 @@ export const Intro: FC<IntroProps> = ({ onDiscoverStudio }) => {
 
   return (
     <section id="intro" className="py-24 sm:py-32 bg-[#FFFFFF] border-y border-[#E7E4DE] relative">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8">
         
         {/* Section Index Marker */}
         <div className="flex items-center justify-between pb-12 border-b border-[#E7E4DE] text-[11px] font-mono tracking-[0.25em] text-[#6F6F6F] uppercase">

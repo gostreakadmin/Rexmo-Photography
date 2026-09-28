@@ -31,7 +31,7 @@ export const Testimonials: FC = () => {
 
   return (
     <section id="testimonials" className="py-24 sm:py-32 bg-[#F7F6F2] border-t border-[#E7E4DE] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between pb-12 border-b border-[#E7E4DE] gap-6">
@@ -55,7 +55,7 @@ export const Testimonials: FC = () => {
 
         {/* Big Editorial Quote Slider with 3D Tilt */}
         <div 
-          className="pt-16 max-w-4xl mx-auto"
+          className="pt-16 max-w-6xl mx-auto"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >

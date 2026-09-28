@@ -60,7 +60,7 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activePage, onNavigate 
             : 'bg-gradient-to-b from-[#F7F6F2]/90 via-[#F7F6F2]/60 to-transparent py-5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 flex items-center justify-between">
+        <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Brand Logo */}
           <a
             href="#home"

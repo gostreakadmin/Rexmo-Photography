@@ -30,7 +30,7 @@ interface PageBannerProps {
 
 const PageBanner = ({ badge, title, subtitle }: PageBannerProps) => (
   <div className="pt-32 sm:pt-36 pb-12 sm:pb-16 bg-[#F7F6F2] border-b border-[#E7E4DE] relative overflow-hidden">
-    <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+    <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
       <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#EAE7DF] border border-[#E7E4DE] text-[10px] tracking-[0.3em] uppercase text-[#171717] w-fit mb-3">
         <span className="w-1.5 h-1.5 rounded-full bg-[#A58A62] animate-pulse" />
         <span>{badge}</span>
@@ -55,7 +55,7 @@ interface NextPageNavProps {
 
 const NextPageNav = ({ primaryLabel, primaryPage, secondaryLabel, secondaryPage, onNavigate }: NextPageNavProps) => (
   <div className="py-12 bg-[#F7F6F2] border-t border-[#E7E4DE]">
-    <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
       <span className="text-[11px] font-mono tracking-widest text-[#6F6F6F] uppercase">
         CONTINUE EXPLORING ARCHIVES
       </span>
@@ -218,7 +218,7 @@ export function App() {
 
             {/* Curated Archive Hub Navigation Grid */}
             <section className="py-20 sm:py-28 bg-[#FFFFFF] border-t border-[#E7E4DE]">
-              <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+              <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8">
                 <div className="flex flex-col md:flex-row md:items-end justify-between pb-10 border-b border-[#E7E4DE] gap-4">
                   <div>
                     <span className="text-[11px] font-mono tracking-[0.25em] text-[#A58A62] uppercase block mb-2">
@@ -438,19 +438,7 @@ export function App() {
         {/* ==================== 4. GALLERY PAGE ==================== */}
         {currentPage === 'gallery' && (
           <div className="animate-fade-in">
-            <PageBanner
-              badge="FINE ART ARCHIVES"
-              title="Archival Gallery & Still Works"
-              subtitle="Filter our curated collection across royal weddings, sacred temple rituals, couture bridal portraits, and vintage analog film stills."
-            />
-            <Gallery />
-            <NextPageNav
-              primaryLabel="READ ARCHIVAL LOVE STORIES"
-              primaryPage="stories"
-              secondaryLabel="ENTER CINEMATOGRAPHY THEATRE"
-              secondaryPage="cinematography"
-              onNavigate={navigateToPage}
-            />
+            <Gallery onNavigate={navigateToPage} />
           </div>
         )}
 
