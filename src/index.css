@@ -26,6 +26,11 @@
     padding: 0;
   }
 
+  /* Single-page section anchor offset so sticky header doesn't cover titles */
+  section {
+    scroll-margin-top: 5rem;
+  }
+
   /* Custom typography classes */
   .font-serif {
     font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
@@ -99,6 +104,26 @@
   }
 }
 
+@keyframes gold-glow-pulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes line-reveal {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
 .animate-marquee {
   display: flex;
   width: max-content;
@@ -115,6 +140,10 @@
 
 .animate-pulse-ring {
   animation: pulse-ring 3s ease-in-out infinite;
+}
+
+.animate-gold-glow {
+  animation: gold-glow-pulse 6s ease-in-out infinite;
 }
 
 .shimmer-hover {
@@ -143,9 +172,25 @@
   animation: shimmer-sweep 1s ease-in-out forwards;
 }
 
+/* Luxury gold text gradient */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #A58A62 0%, #D4C09A 50%, #8E7552 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 /* Film grain subtle overlay */
 .film-grain {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* Hide scrollbar for clean horizontal scrubber ribbons */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Respect user preference for reduced motion */

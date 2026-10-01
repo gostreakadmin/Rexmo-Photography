@@ -2,13 +2,14 @@ import { useState, useEffect, type FC, type MouseEvent } from 'react';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { STUDIO_INFO } from '../data/rexmoData';
 import { SoundToggle } from './SoundToggle';
+import { Magnetic } from './Magnetic';
 import { useLanguage } from '../context/LanguageContext';
 import { soundEngine } from '../utils/soundEffects';
 
 interface HeaderProps {
   onOpenInquiry: () => void;
   activePage: string;
-  onNavigate: (page: string) => void;
+  onNavigate: (sectionId: string) => void;
 }
 
 export const Header: FC<HeaderProps> = ({ onOpenInquiry, activePage, onNavigate }) => {
@@ -56,24 +57,26 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activePage, onNavigate 
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? 'bg-[#F7F6F2]/95 backdrop-blur-md py-3.5 border-b border-[#E7E4DE] shadow-[0_4px_24px_rgba(0,0,0,0.03)]'
-            : 'bg-gradient-to-b from-[#F7F6F2]/90 via-[#F7F6F2]/60 to-transparent py-5'
+            ? 'bg-[#F7F6F2]/95 backdrop-blur-md py-3 border-b border-[#E7E4DE] shadow-[0_4px_24px_rgba(0,0,0,0.03)]'
+            : 'bg-gradient-to-b from-[#F7F6F2]/95 via-[#F7F6F2]/70 to-transparent py-4 sm:py-5'
         }`}
       >
         <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Brand Logo */}
-          <a
-            href="#home"
-            onClick={(e) => handleNavClick(e, 'home')}
-            className="group flex flex-col items-start text-left focus:outline-none flex-shrink-0"
-          >
-            <span className="font-serif text-2xl sm:text-3xl tracking-[0.25em] font-light text-[#171717] group-hover:text-[#A58A62] transition-colors uppercase">
-              REXMO
-            </span>
-            <span className="text-[9px] sm:text-[10px] tracking-[0.4em] text-[#6F6F6F] font-sans -mt-1 uppercase">
-              PHOTOGRAPHY • EST. {STUDIO_INFO.established}
-            </span>
-          </a>
+          {/* Brand Logo with Magnetic attraction */}
+          <Magnetic strength={0.2} radius={60}>
+            <a
+              href="#home"
+              onClick={(e) => handleNavClick(e, 'home')}
+              className="group flex flex-col items-start text-left focus:outline-none flex-shrink-0"
+            >
+              <span className="font-serif text-2xl sm:text-3xl tracking-[0.25em] font-light text-[#171717] group-hover:text-[#A58A62] transition-colors uppercase">
+                REXMO
+              </span>
+              <span className="text-[9px] sm:text-[10px] tracking-[0.4em] text-[#6F6F6F] font-sans -mt-1 uppercase">
+                PHOTOGRAPHY • EST. {STUDIO_INFO.established}
+              </span>
+            </a>
+          </Magnetic>
 
           {/* Desktop Navigation */}
           <nav className="hidden xl:flex items-center space-x-7">
@@ -92,7 +95,7 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activePage, onNavigate 
                 >
                   {link.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#A58A62] transition-all" />
+                    <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#A58A62] transition-all shadow-[0_0_6px_rgba(165,138,98,0.5)]" />
                   )}
                 </a>
               );
@@ -104,17 +107,19 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activePage, onNavigate 
             {/* Studio Sound Effects Toggle */}
             <SoundToggle />
 
-            {/* Inquire CTA */}
-            <button
-              onClick={handleInquiryClick}
-              className="group relative inline-flex items-center space-x-2 text-[11px] tracking-[0.25em] uppercase font-semibold text-[#171717] px-5 py-2 border border-[#171717] hover:border-[#A58A62] hover:text-white transition-all duration-300 overflow-hidden shadow-sm"
-            >
-              <span className="absolute inset-0 bg-[#A58A62] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out -z-10" />
-              <span>{t('nav.inquire', 'INQUIRE')}</span>
-              <span className="text-sm transform group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300">
-                →
-              </span>
-            </button>
+            {/* Inquire CTA with Magnetic pull */}
+            <Magnetic strength={0.3} radius={70}>
+              <button
+                onClick={handleInquiryClick}
+                className="group relative inline-flex items-center space-x-2 text-[11px] tracking-[0.25em] uppercase font-semibold text-[#171717] px-5 py-2 border border-[#171717] hover:border-[#A58A62] hover:text-white transition-all duration-300 overflow-hidden shadow-sm"
+              >
+                <span className="absolute inset-0 bg-[#A58A62] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out -z-10" />
+                <span>{t('nav.inquire', 'INQUIRE')}</span>
+                <span className="text-sm transform group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300">
+                  →
+                </span>
+              </button>
+            </Magnetic>
           </div>
 
           {/* Mobile Right Controls */}
@@ -221,3 +226,5 @@ export const Header: FC<HeaderProps> = ({ onOpenInquiry, activePage, onNavigate 
     </>
   );
 };
+
+export default Header;

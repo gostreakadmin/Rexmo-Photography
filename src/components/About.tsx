@@ -1,6 +1,9 @@
 import type { FC } from 'react';
 import { TIMELINE_DATA } from '../data/rexmoData';
 import { TiltCard } from './TiltCard';
+import { TextReveal } from './TextReveal';
+import { CurtainReveal } from './CurtainReveal';
+import { Magnetic } from './Magnetic';
 import { useLanguage } from '../context/LanguageContext';
 import { soundEngine } from '../utils/soundEffects';
 
@@ -29,9 +32,10 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
               <span>{t('about.tag', 'HERITAGE & CONTINUITY')}</span>
             </div>
             <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-light text-[#171717] tracking-tight">
-              {t('about.title1', 'A LEGACY')} <br />
+              <TextReveal text={t('about.title1', 'A LEGACY')} delay={100} />
+              <br />
               <span className="italic font-normal text-[#A58A62]">
-                {t('about.title2', 'SINCE 1992')}
+                <TextReveal text={t('about.title2', 'SINCE 1992')} delay={250} />
               </span>
             </h2>
           </div>
@@ -46,19 +50,21 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
           
           {/* Card 1: Founder Francis Jeya Balan */}
           <TiltCard maxTilt={5} scale={1.01} glare={true}>
-            <div className="group bg-white border border-[#E7E4DE] p-6 sm:p-8 flex flex-col justify-between shadow-sm relative h-full">
+            <div className="group bg-white border border-[#E7E4DE] p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-xl transition-shadow relative h-full">
               <div>
-                <div className="relative aspect-[4/5] overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] mb-6">
-                  <img
-                    src="images/founder-francis.jpg"
-                    alt="Francis Jeya Balan - Founder of Rexmo Photography"
-                    loading="lazy"
-                    className="w-full h-full object-cover object-top filter grayscale contrast-110 group-hover:filter-none transition-all duration-700"
-                  />
-                  <div className="absolute bottom-3 left-3 bg-[#171717]/85 backdrop-blur-sm text-white px-3 py-1 font-mono text-[10px] tracking-widest uppercase">
-                    FOUNDER • 1992
+                <CurtainReveal color="gold" delay={150} direction="right">
+                  <div className="relative aspect-[4/5] overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] mb-6">
+                    <img
+                      src="images/founder-francis.jpg"
+                      alt="Francis Jeya Balan - Founder of Rexmo Photography"
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top filter grayscale contrast-110 group-hover:filter-none transition-all duration-700"
+                    />
+                    <div className="absolute bottom-3 left-3 bg-[#171717]/85 backdrop-blur-sm text-white px-3 py-1 font-mono text-[10px] tracking-widest uppercase">
+                      FOUNDER • 1992
+                    </div>
                   </div>
-                </div>
+                </CurtainReveal>
 
                 <div className="space-y-2 mb-4">
                   <span className="text-[11px] font-mono tracking-[0.25em] text-[#A58A62] uppercase block">
@@ -90,19 +96,21 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
 
           {/* Card 2: Creative Director Jesley Frantin */}
           <TiltCard maxTilt={5} scale={1.01} glare={true}>
-            <div className="group bg-white border border-[#E7E4DE] p-6 sm:p-8 flex flex-col justify-between shadow-sm relative h-full">
+            <div className="group bg-white border border-[#E7E4DE] p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-xl transition-shadow relative h-full">
               <div>
-                <div className="relative aspect-[4/5] overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] mb-6">
-                  <img
-                    src="images/director-jesley.jpg"
-                    alt="Jesley Frantin - Creative Director of Rexmo Photography"
-                    loading="lazy"
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute bottom-3 left-3 bg-[#A58A62] text-white px-3 py-1 font-mono text-[10px] tracking-widest uppercase">
-                    CREATIVE DIRECTION
+                <CurtainReveal color="dark" delay={250} direction="left">
+                  <div className="relative aspect-[4/5] overflow-hidden bg-[#EAE7DF] border border-[#E7E4DE] mb-6">
+                    <img
+                      src="images/director-jesley.jpg"
+                      alt="Jesley Frantin - Creative Director of Rexmo Photography"
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute bottom-3 left-3 bg-[#A58A62] text-white px-3 py-1 font-mono text-[10px] tracking-widest uppercase">
+                      CREATIVE DIRECTION
+                    </div>
                   </div>
-                </div>
+                </CurtainReveal>
 
                 <div className="space-y-2 mb-4">
                   <span className="text-[11px] font-mono tracking-[0.25em] text-[#A58A62] uppercase block">
@@ -112,22 +120,22 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
                     Jesley Frantin
                   </h3>
                   <p className="text-xs font-mono uppercase tracking-widest text-[#6F6F6F]">
-                    {t('about.director_title', 'Creative Director & Lead Artist')}
+                    {t('about.director_title', 'Creative Director & Lead Cinematographer')}
                   </p>
                 </div>
 
                 <div className="space-y-3 text-xs sm:text-sm text-[#6F6F6F] leading-relaxed font-light">
                   <p>
-                    Carrying forward the family legacy, Jesley Frantin leads Rexmo with a modern artistic vision while fiercely safeguarding its classic elegance.
+                    {t('about.director_p1', "Carrying his father's torch forward, Jesley combines three decades of studio heritage with modern European editorial styling and cinematic pacing.")}
                   </p>
                   <p>
-                    As an internationally traveled wedding photographer and filmmaker, he approaches each celebration as a bespoke editorial story—thoughtfully composed, emotionally rich, and crafted with optical precision. Under his direction, Rexmo continues to evolve across India and worldwide destinations.
+                    {t('about.director_p2', 'Trained in visual arts and cinematography, he oversees every major commission personally—from color grading each master file to crafting bespoke royal wedding collections.')}
                   </p>
                 </div>
               </div>
 
               <div className="pt-6 mt-6 border-t border-[#E7E4DE] text-xs font-serif italic text-[#171717]">
-                "Under his direction, Rexmo evolves while honoring the core values on which it was built."
+                "Our philosophy is simple: create images that our couples' grandchildren will admire with equal wonder."
               </div>
             </div>
           </TiltCard>
@@ -135,38 +143,30 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
         </div>
 
         {/* Timeline Section */}
-        <div className="pt-24 border-t border-[#E7E4DE] mt-24">
+        <div className="pt-24">
           <div className="text-center max-w-xl mx-auto mb-16">
-            <span className="text-xs font-mono tracking-[0.3em] uppercase text-[#A58A62] block mb-2">
-              CHRONOLOGY
+            <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-[#A58A62] block mb-2">
+              HERITAGE TIMELINE
             </span>
-            <h3 className="font-serif text-3xl sm:text-4xl text-[#171717] font-light">
-              THE MILESTONES OF OUR JOURNEY
+            <h3 className="font-serif text-3xl sm:text-4xl font-light text-[#171717]">
+              Thirty-Four Years of Preservation
             </h3>
           </div>
 
-          <div className="relative border-l border-[#A58A62]/40 ml-4 sm:ml-32 md:ml-48 space-y-12 pb-4">
-            {TIMELINE_DATA.map((milestone, idx) => (
-              <div 
-                key={milestone.year} 
-                onMouseEnter={() => soundEngine.playShutterClick()}
-                className="relative pl-8 sm:pl-12 group cursor-pointer"
-              >
-                {/* Year Marker on the Left */}
-                <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#A58A62] ring-4 ring-[#F7F6F2] group-hover:scale-150 transition-transform duration-300" />
-                
-                <div className="sm:absolute sm:-left-36 md:-left-44 top-0 mb-2 sm:mb-0">
-                  <span className="font-serif text-2xl sm:text-3xl text-[#171717] group-hover:text-[#A58A62] transition-colors font-medium tracking-tight">
-                    {milestone.year}
-                  </span>
-                </div>
+          <div className="relative border-l border-[#E7E4DE] ml-4 sm:ml-8 md:mx-auto md:max-w-3xl space-y-12 pl-6 sm:pl-8">
+            {TIMELINE_DATA.map((milestone) => (
+              <div key={milestone.year} className="relative group">
+                {/* Year Marker Dot */}
+                <div className="absolute -left-[31px] sm:-left-[39px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#EAE7DF] border-2 border-[#A58A62] group-hover:bg-[#A58A62] group-hover:scale-125 transition-all shadow-sm" />
 
-                {/* Milestone Card */}
-                <div className="bg-white border border-[#E7E4DE] p-6 sm:p-8 max-w-2xl shadow-sm hover:border-[#A58A62] hover:shadow-md transition-all duration-300">
-                  <div className="flex items-center space-x-2 text-[10px] font-mono tracking-widest uppercase text-[#A58A62] mb-1">
-                    <span>STAGE 0{idx + 1}</span>
-                    <span>•</span>
-                    <span>{milestone.title}</span>
+                <div className="bg-white border border-[#E7E4DE] p-6 sm:p-8 hover:border-[#A58A62] hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-mono text-xs sm:text-sm text-[#A58A62] font-semibold tracking-wider">
+                      {milestone.year}
+                    </span>
+                    <span className="text-[10px] font-mono tracking-widest text-[#6F6F6F] uppercase">
+                      {milestone.title}
+                    </span>
                   </div>
                   <h4 className="font-serif text-xl sm:text-2xl text-[#171717] font-light mb-2">
                     {milestone.subtitle}
@@ -197,12 +197,14 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
             We accept a limited number of celebrations each season to ensure uncompromising artistic focus.
           </p>
           <div className="pt-2">
-            <button
-              onClick={handleInquire}
-              className="px-8 py-3.5 bg-[#171717] text-white text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#A58A62] transition-colors shimmer-hover relative overflow-hidden shadow-sm"
-            >
-              {t('about.cta', 'INQUIRE FOR YOUR DATE →')}
-            </button>
+            <Magnetic strength={0.3} radius={70}>
+              <button
+                onClick={handleInquire}
+                className="px-8 py-3.5 bg-[#171717] text-white text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#A58A62] transition-colors shimmer-hover relative overflow-hidden shadow-sm inline-block"
+              >
+                {t('about.cta', 'INQUIRE FOR YOUR DATE →')}
+              </button>
+            </Magnetic>
           </div>
         </div>
 
@@ -210,3 +212,5 @@ export const About: FC<AboutProps> = ({ onOpenInquiry }) => {
     </section>
   );
 };
+
+export default About;

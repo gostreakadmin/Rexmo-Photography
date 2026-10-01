@@ -1,15 +1,27 @@
 import { useEffect, useState, useRef, type FC } from 'react';
 
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  vx: number;
+  vy: number;
+}
+
 export const CustomCursor: FC = () => {
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const [followerPos, setFollowerPos] = useState({ x: -100, y: -100 });
-  const [cursorType, setCursorType] = useState<'default' | 'pointer' | 'view' | 'play' | 'explore'>('default');
+  const [cursorType, setCursorType] = useState<'default' | 'pointer' | 'view' | 'play' | 'explore' | 'drag'>('default');
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   const mousePosRef = useRef({ x: -100, y: -100 });
   const followerPosRef = useRef({ x: -100, y: -100 });
+  const lastMousePosRef = useRef({ x: -100, y: -100 });
+  const particlesRef = useRef<Particle[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafId = useRef<number | null>(null);
 
   useEffect(() => {
@@ -23,8 +35,9 @@ export const CustomCursor: FC = () => {
     }
 
     const onMouseMove = (e: MouseEvent) => {
-      mousePosRef.current = { x: e.clientX, y: e.clientY };
-      setCursorPos({ x: e.clientX, y: e.clientY });
+      const { clientX, clientY } = e;
+      mousePosRef.current = { x: clientX, y: clientY };
+      setCursorPos({ x: clientX, y: clientY });
 
       if (!isVisible) setIsVisible(true);
 
@@ -39,6 +52,8 @@ export const CustomCursor: FC = () => {
         setCursorType('play');
       } else if (cursorAttr === 'explore') {
         setCursorType('explore');
+      } else if (cursorAttr === 'drag') {
+        setCursorType('drag');
       } else if (
         target.closest('button') ||
         target.closest('a') ||
@@ -47,12 +62,31 @@ export const CustomCursor: FC = () => {
         target.tagName === 'A' ||
         target.closest('input') ||
         target.closest('select') ||
-        target.closest('textarea')
+        target.closest('textarea') ||
+        target.closest('[data-magnetic]')
       ) {
         setCursorType('pointer');
       } else {
         setCursorType('default');
       }
+
+      // Spawn golden dust trail on mouse velocity
+      const dx = clientX - lastMousePosRef.current.x;
+      const dy = clientY - lastMousePosRef.current.y;
+      const speed = Math.hypot(dx, dy);
+
+      if (speed > 6 && particlesRef.current.length < 24) {
+        particlesRef.current.push({
+          x: clientX + (Math.random() - 0.5) * 6,
+          y: clientY + (Math.random() - 0.5) * 6,
+          size: Math.random() * 2 + 1,
+          opacity: 0.55,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.8
+        });
+      }
+
+      lastMousePosRef.current = { x: clientX, y: clientY };
     };
 
     const onMouseDown = () => setIsMouseDown(true);
@@ -66,7 +100,7 @@ export const CustomCursor: FC = () => {
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('mouseenter', onMouseEnter);
 
-    // Smooth Lerp animation loop for the trailing ring
+    // Smooth Lerp animation loop for the trailing ring & particle trail canvas
     const animateFollower = () => {
       const lerpFactor = 0.18;
       const targetX = mousePosRef.current.x;
@@ -79,6 +113,33 @@ export const CustomCursor: FC = () => {
         x: Math.round(followerPosRef.current.x * 10) / 10,
         y: Math.round(followerPosRef.current.y * 10) / 10
       });
+
+      // Render particle trail on canvas
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          particlesRef.current.forEach((p, idx) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.opacity *= 0.88;
+            p.size *= 0.94;
+
+            if (p.opacity > 0.04) {
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(165, 138, 98, ${p.opacity.toFixed(2)})`;
+              ctx.shadowColor = '#C2AB88';
+              ctx.shadowBlur = 4;
+              ctx.fill();
+            } else {
+              particlesRef.current.splice(idx, 1);
+            }
+          });
+        }
+      }
 
       rafId.current = requestAnimationFrame(animateFollower);
     };
@@ -95,6 +156,19 @@ export const CustomCursor: FC = () => {
     };
   }, [isVisible]);
 
+  // Canvas size sync
+  useEffect(() => {
+    const handleResize = () => {
+      if (canvasRef.current) {
+        canvasRef.current.width = window.innerWidth;
+        canvasRef.current.height = window.innerHeight;
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (isTouchDevice || !isVisible) return null;
 
   // Determine ring size and styling based on active mode
@@ -104,7 +178,7 @@ export const CustomCursor: FC = () => {
 
   if (cursorType === 'pointer') {
     ringSize = 48;
-    ringClasses = 'border-[#A58A62] bg-[#A58A62]/10 backdrop-blur-[1px]';
+    ringClasses = 'border-[#A58A62] bg-[#A58A62]/15 backdrop-blur-[1px]';
   } else if (cursorType === 'view') {
     ringSize = 72;
     ringLabel = 'VIEW';
@@ -114,8 +188,12 @@ export const CustomCursor: FC = () => {
     ringLabel = 'PLAY';
     ringClasses = 'border-[#A58A62] bg-[#171717]/90 text-white shadow-lg';
   } else if (cursorType === 'explore') {
-    ringSize = 72;
+    ringSize = 74;
     ringLabel = 'EXPLORE';
+    ringClasses = 'border-[#A58A62] bg-[#171717]/90 text-white shadow-lg';
+  } else if (cursorType === 'drag') {
+    ringSize = 74;
+    ringLabel = 'DRAG';
     ringClasses = 'border-[#A58A62] bg-[#171717]/90 text-white shadow-lg';
   }
 
@@ -123,7 +201,13 @@ export const CustomCursor: FC = () => {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden select-none">
-      {/* Outer Follower Ring */}
+      {/* Golden Dust Wake Canvas */}
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none absolute inset-0 w-full h-full"
+      />
+
+      {/* Outer Follower Ring with lerped spring physics */}
       <div
         className={`absolute rounded-full border flex items-center justify-center transition-[width,height,background-color,border-color] duration-300 ease-out ${ringClasses}`}
         style={{
@@ -153,3 +237,5 @@ export const CustomCursor: FC = () => {
     </div>
   );
 };
+
+export default CustomCursor;

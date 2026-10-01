@@ -1,5 +1,8 @@
 import type { FC } from 'react';
 import { TiltCard } from './TiltCard';
+import { TextReveal } from './TextReveal';
+import { CurtainReveal } from './CurtainReveal';
+import { Magnetic } from './Magnetic';
 import { useLanguage } from '../context/LanguageContext';
 import { soundEngine } from '../utils/soundEffects';
 
@@ -32,29 +35,31 @@ export const Intro: FC<IntroProps> = ({ onDiscoverStudio }) => {
         {/* Main Content Grid: Asymmetric Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center pt-12 lg:pt-16">
           
-          {/* Asymmetric Image Frame with 3D Tilt (5 cols) */}
+          {/* Asymmetric Image Frame with 3D Tilt & Curtain Reveal (5 cols) */}
           <div className="lg:col-span-5 relative order-2 lg:order-1">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               
               {/* Offset frame background */}
               <div className="absolute -top-4 -left-4 w-full h-full border border-[#A58A62]/40 -z-10" />
 
-              <TiltCard maxTilt={6} scale={1.015} glare={true}>
-                <div 
-                  data-cursor="explore"
-                  className="overflow-hidden bg-[#F7F6F2] border border-[#E7E4DE] aspect-[4/5] shadow-[0_15px_40px_rgba(0,0,0,0.04)] group"
-                >
-                  <img
-                    src="images/intro-studio.jpg"
-                    alt="Rexmo Photography Studio Aesthetic and Intentional Composition"
-                    loading="lazy"
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                </div>
-              </TiltCard>
+              <CurtainReveal color="gold" delay={200} direction="right">
+                <TiltCard maxTilt={6} scale={1.015} glare={true}>
+                  <div 
+                    data-cursor="explore"
+                    className="overflow-hidden bg-[#F7F6F2] border border-[#E7E4DE] aspect-[4/5] shadow-[0_15px_40px_rgba(0,0,0,0.04)] group"
+                  >
+                    <img
+                      src="images/intro-studio.jpg"
+                      alt="Rexmo Photography Studio Aesthetic and Intentional Composition"
+                      loading="lazy"
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                  </div>
+                </TiltCard>
+              </CurtainReveal>
 
               {/* Editorial Stamp */}
-              <div className="absolute -bottom-6 -right-6 bg-[#F7F6F2] border border-[#E7E4DE] p-4 max-w-[200px] shadow-sm hidden sm:block">
+              <div className="absolute -bottom-6 -right-6 bg-[#F7F6F2] border border-[#E7E4DE] p-4 max-w-[200px] shadow-sm hidden sm:block z-30">
                 <p className="text-[10px] uppercase font-mono tracking-widest text-[#A58A62]">
                   ARCHIVAL DISCIPLINE
                 </p>
@@ -72,9 +77,10 @@ export const Intro: FC<IntroProps> = ({ onDiscoverStudio }) => {
                 {t('intro.badge', 'EDITORIAL INTEGRITY')}
               </span>
               <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-light text-[#171717] leading-[1.1] tracking-tight">
-                {t('intro.title1', 'DEFINING')} <br />
+                <TextReveal text={t('intro.title1', 'DEFINING')} delay={100} />
+                <br />
                 <span className="italic font-normal text-[#171717]">
-                  {t('intro.title2', 'THE NARRATIVE')}
+                  <TextReveal text={t('intro.title2', 'THE NARRATIVE')} delay={250} />
                 </span>
               </h2>
             </div>
@@ -123,17 +129,19 @@ export const Intro: FC<IntroProps> = ({ onDiscoverStudio }) => {
               </div>
             </div>
 
-            {/* Action */}
+            {/* Action with Magnetic Attraction */}
             <div className="pt-2">
-              <button
-                onClick={handleDiscover}
-                className="group inline-flex items-center space-x-3 text-xs tracking-[0.25em] uppercase font-semibold text-[#171717] hover:text-[#A58A62] transition-colors"
-              >
-                <span>{t('intro.cta', 'DISCOVER THE STUDIO')}</span>
-                <span className="transform group-hover:translate-x-2 transition-transform duration-300">
-                  →
-                </span>
-              </button>
+              <Magnetic strength={0.3} radius={60}>
+                <button
+                  onClick={handleDiscover}
+                  className="group inline-flex items-center space-x-3 text-xs tracking-[0.25em] uppercase font-semibold text-[#171717] hover:text-[#A58A62] transition-colors py-2"
+                >
+                  <span>{t('intro.cta', 'DISCOVER THE STUDIO')}</span>
+                  <span className="transform group-hover:translate-x-2 transition-transform duration-300">
+                    →
+                  </span>
+                </button>
+              </Magnetic>
             </div>
 
           </div>
@@ -144,3 +152,5 @@ export const Intro: FC<IntroProps> = ({ onDiscoverStudio }) => {
     </section>
   );
 };
+
+export default Intro;

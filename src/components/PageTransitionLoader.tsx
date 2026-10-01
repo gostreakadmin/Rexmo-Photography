@@ -3,13 +3,13 @@ import { soundEngine } from '../utils/soundEffects';
 
 interface PageTransitionLoaderProps {
   isLoading: boolean;
-  targetPage: string;
+  targetPage?: string;
   onComplete: () => void;
   durationMs?: number;
 }
 
 const PAGE_LABELS: Record<string, string> = {
-  home: 'Home & Editorial Monograph',
+  home: 'Fine Art Monograph & Archives',
   about: 'Heritage & Studio Timeline',
   services: 'Curated Services & Collections',
   gallery: 'Featured Fine Art Archives',
@@ -22,7 +22,7 @@ const PAGE_LABELS: Record<string, string> = {
 
 export const PageTransitionLoader: FC<PageTransitionLoaderProps> = ({
   isLoading,
-  targetPage,
+  targetPage = 'home',
   onComplete,
   durationMs = 1500
 }) => {
@@ -51,7 +51,7 @@ export const PageTransitionLoader: FC<PageTransitionLoaderProps> = ({
           onComplete();
           setTimeout(() => {
             setShouldRender(false);
-          }, 200);
+          }, 350);
         }
       };
 
@@ -72,8 +72,9 @@ export const PageTransitionLoader: FC<PageTransitionLoaderProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-[#121212] flex flex-col items-center justify-center select-none transition-opacity duration-300 ${
-        progress >= 100 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      id="rexmo-page-loader"
+      className={`fixed inset-0 z-[99999] bg-[#121212] flex flex-col items-center justify-center select-none transition-opacity duration-400 ease-out ${
+        progress >= 100 ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
       }`}
       style={{ willChange: 'opacity' }}
     >
@@ -98,18 +99,18 @@ export const PageTransitionLoader: FC<PageTransitionLoaderProps> = ({
           
           {/* Rotating Outer Camera Aperture Ring */}
           <div 
-            className="absolute inset-0 rounded-full border border-dashed border-[#A58A62]/40"
+            className="absolute inset-0 rounded-full border border-dashed border-[#A58A62]/50"
             style={{ animation: 'spin 12s linear infinite' }}
           />
 
           {/* Inner Accent Ring with Counter-Spin */}
           <div 
-            className="absolute inset-2.5 rounded-full border-t border-b border-[#E5D5B8]/60"
+            className="absolute inset-2.5 rounded-full border-t border-b border-[#E5D5B8]/70"
             style={{ animation: 'spin 4s linear infinite reverse' }}
           />
 
           {/* Central Matte Emblem Box */}
-          <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-[#181818] border border-[#A58A62]/80 flex items-center justify-center shadow-[0_0_40px_rgba(165,138,98,0.3)]">
+          <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-[#181818] border border-[#A58A62] flex items-center justify-center shadow-[0_0_40px_rgba(165,138,98,0.35)]">
             <span className="font-serif text-3xl sm:text-4xl text-[#A58A62] font-light tracking-wider">
               R
             </span>
@@ -142,10 +143,10 @@ export const PageTransitionLoader: FC<PageTransitionLoaderProps> = ({
         {/* Dynamic Loading Message */}
         <div className="mt-5 space-y-1">
           <p className="text-[10px] font-mono tracking-[0.25em] text-white/70 uppercase">
-            OPENING PAGE: <span className="text-[#A58A62] font-semibold">{targetLabel}</span>
+            OPENING: <span className="text-[#A58A62] font-semibold">{targetLabel}</span>
           </p>
           <p className="text-[8px] font-mono tracking-[0.3em] text-white/30 uppercase">
-            LOADING ARCHIVAL STILLS & MASTER SCORES • {Math.round(progress)}%
+            PREPARING ARCHIVES • {Math.round(progress)}%
           </p>
         </div>
 
@@ -153,3 +154,5 @@ export const PageTransitionLoader: FC<PageTransitionLoaderProps> = ({
     </div>
   );
 };
+
+export default PageTransitionLoader;

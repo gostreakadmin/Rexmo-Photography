@@ -3,25 +3,29 @@ import {
   Maximize2, 
   ChevronLeft, 
   ChevronRight, 
-  Sparkles, 
   MapPin,
-  ArrowDown,
   Camera,
-  Film
+  Film,
+  Play,
+  Pause,
+  Sparkles,
+  ArrowDown
 } from 'lucide-react';
 import { GALLERY_DATA } from '../data/rexmoData';
 import { Lightbox } from './Lightbox';
 import { TiltCard } from './TiltCard';
+import { Magnetic } from './Magnetic';
 import { soundEngine } from '../utils/soundEffects';
 
 interface GalleryProps {
-  onNavigate?: (page: string) => void;
+  onNavigate?: (sectionId: string) => void;
 }
 
 export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isAutoPlay, setIsAutoPlay] = useState(false);
   
   // Full-Width Kinetic Scroll Showcase Index
   const [showcaseIndex, setShowcaseIndex] = useState(0);
@@ -47,7 +51,6 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
   }, [selectedCategory]);
 
   const totalCount = filteredItems.length;
-  const isAtLastPhoto = showcaseIndex === totalCount - 1;
   const progressPercentage = totalCount > 0 ? ((showcaseIndex + 1) / totalCount) * 100 : 0;
 
   // Window resize handler for responsive card sizing
@@ -66,7 +69,7 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
         soundEngine.playShutterClick();
         return prev + 1;
       }
-      return prev;
+      return 0; // wrap around for seamless exploration
     });
   }, [totalCount]);
 
@@ -76,9 +79,9 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
         soundEngine.playShutterClick();
         return prev - 1;
       }
-      return prev;
+      return totalCount - 1; // wrap around
     });
-  }, []);
+  }, [totalCount]);
 
   const handleSelectThumbnail = useCallback((index: number) => {
     if (index === showcaseIndex) return;
@@ -96,192 +99,144 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
     soundEngine.playShutterClick();
     setSelectedCategory(catId);
     setShowcaseIndex(0);
-    // Smooth scroll back to top of showcase if category changes
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const scrollToClientSection = () => {
-    soundEngine.playGoldenChime();
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
-    const section = document.getElementById('gallery-client-suite');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-    }
-  };
-
-  // =========================================================================
-  // STRICT PAGE SCROLL LOCKING UNTIL REACHING THE LAST PHOTO:
-  // 1. Until showcaseIndex === lastPhoto:
-  //    - document.documentElement & body overflow are set to 'hidden' (no page scrolling!)
-  //    - wheel events anywhere on the screen are intercepted with e.preventDefault()
-  //    - user scrolling DOWN advances photos smoothly with debounce/threshold
-  //    - user scrolling UP steps backwards through photos
-  // 2. ONLY when showcaseIndex === lastPhoto:
-  //    - document overflow unlocks to 'auto'
-  //    - scrolling DOWN allows the page to scroll down into the client suite & footer!
-  // 3. When scrolled down in client suite, scrolling UP back to top (scrollY <= 15)
-  //    re-engages photo scrolling and locks page scroll if user scrolls up past frame!
-  // =========================================================================
+  // Keep showcaseIndexRef in sync for wheel handler
+  const showcaseIndexRef = useRef(showcaseIndex);
   useEffect(() => {
-    if (lightboxOpen) return;
+    showcaseIndexRef.current = showcaseIndex;
+  }, [showcaseIndex]);
 
-    // Apply or release page body overflow lock
-    const applyScrollLock = () => {
-      const atTop = window.scrollY <= 15;
-      if (atTop && !isAtLastPhoto) {
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-      }
-    };
+  // Mouse wheel scroll to cycle photos with natural boundary release
+  useEffect(() => {
+    const el = showcaseContainerRef.current;
+    if (!el) return;
 
-    applyScrollLock();
-
-    let lastScrollTime = 0;
-    const cooldownMs = 280; // Silky responsive transition between frames
     let accumulatedDelta = 0;
-    const deltaThreshold = 35; // Sensitive to mouse wheel & trackpad gestures
+    let lastScrollTime = 0;
+    const cooldownMs = 180; // Fast, responsive transition
+    const deltaThreshold = 25; // Highly responsive to mouse wheel & trackpad
 
-    const handleWindowWheel = (e: WheelEvent) => {
-      // If user has already scrolled down into the client portal section:
-      if (window.scrollY > 20) {
-        // If user scrolls back UP to the very top:
-        if (window.scrollY <= 30 && e.deltaY < 0) {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        return;
-      }
+    const handleWheel = (e: WheelEvent) => {
+      if (lightboxOpen) return;
 
-      // We are at the gallery showcase stage
+      const currentIndex = showcaseIndexRef.current;
       const now = performance.now();
 
       if (e.deltaY > 0) {
-        // Scrolling DOWN
-        if (showcaseIndex < totalCount - 1) {
-          // Strictly prevent vertical page movement!
+        // Scrolling DOWN / NEXT PHOTO
+        if (currentIndex < totalCount - 1) {
           e.preventDefault();
           accumulatedDelta += Math.abs(e.deltaY);
 
           if (accumulatedDelta >= deltaThreshold && now - lastScrollTime > cooldownMs) {
             lastScrollTime = now;
             accumulatedDelta = 0;
-            handleNextPhoto();
+            setShowcaseIndex((prev) => Math.min(prev + 1, totalCount - 1));
+            soundEngine.playShutterClick();
           }
         } else {
-          // AT LAST PHOTO: Unlock page scroll so user can scroll down naturally!
-          document.documentElement.style.overflow = '';
-          document.body.style.overflow = '';
-          // Do not call e.preventDefault(); allows normal page scroll to next section
+          // At last photo, let user scroll down naturally
+          accumulatedDelta = 0;
         }
       } else if (e.deltaY < 0) {
-        // Scrolling UP
-        if (showcaseIndex > 0) {
-          // Strictly prevent vertical page movement, rewind photo
+        // Scrolling UP / PREV PHOTO
+        if (currentIndex > 0) {
           e.preventDefault();
           accumulatedDelta += Math.abs(e.deltaY);
 
           if (accumulatedDelta >= deltaThreshold && now - lastScrollTime > cooldownMs) {
             lastScrollTime = now;
             accumulatedDelta = 0;
-            handlePrevPhoto();
+            setShowcaseIndex((prev) => Math.max(prev - 1, 0));
+            soundEngine.playShutterClick();
           }
         } else {
-          // At first photo, prevent scrolling past the top
-          e.preventDefault();
+          // At first photo, let user scroll up naturally
+          accumulatedDelta = 0;
         }
       }
     };
 
-    // Mobile Touch Navigation
-    let touchStartY = 0;
-    let touchStartX = 0;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-      touchStartX = e.touches[0].clientX;
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', handleWheel);
     };
+  }, [lightboxOpen, totalCount]);
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (window.scrollY > 20) return;
+  // Auto-play ambient slideshow
+  useEffect(() => {
+    if (!isAutoPlay) return;
+    const timer = setInterval(() => {
+      handleNextPhoto();
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [isAutoPlay, handleNextPhoto]);
 
-      const touchY = e.touches[0].clientY;
-      const touchX = e.touches[0].clientX;
-      const diffY = touchStartY - touchY;
-      const diffX = touchStartX - touchX;
-
-      // Primary swipe gesture (vertical or horizontal)
-      const primaryDiff = Math.abs(diffX) > Math.abs(diffY) ? diffX : diffY;
-      const now = performance.now();
-
-      if (Math.abs(primaryDiff) > 35 && now - lastScrollTime > cooldownMs) {
-        if (primaryDiff > 0) {
-          // Swipe up / swipe left -> Next
-          if (showcaseIndex < totalCount - 1) {
-            e.preventDefault();
-            lastScrollTime = now;
-            handleNextPhoto();
-            touchStartY = touchY;
-            touchStartX = touchX;
-          } else {
-            // At last photo, allow scrolling down
-            document.documentElement.style.overflow = '';
-            document.body.style.overflow = '';
-          }
-        } else {
-          // Swipe down / swipe right -> Prev
-          if (showcaseIndex > 0) {
-            e.preventDefault();
-            lastScrollTime = now;
-            handlePrevPhoto();
-            touchStartY = touchY;
-            touchStartX = touchX;
-          }
-        }
-      } else if (showcaseIndex < totalCount - 1 && window.scrollY <= 20) {
-        // Keep page locked while in showcase
-        e.preventDefault();
-      }
-    };
-
-    // Keyboard Arrow navigation
+  // Keyboard navigation when gallery is in viewport
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (lightboxOpen) return;
-      if (window.scrollY > 20) return;
+      
+      const galleryEl = document.getElementById('gallery');
+      if (!galleryEl) return;
+      const rect = galleryEl.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
 
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-        if (showcaseIndex < totalCount - 1) {
-          e.preventDefault();
+      if (!inView) return;
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        handleNextPhoto();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        handlePrevPhoto();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, handleNextPhoto, handlePrevPhoto]);
+
+  // Touch Swipe on Showcase Container
+  useEffect(() => {
+    const el = showcaseContainerRef.current;
+    if (!el) return;
+
+    let startX = 0;
+    let startY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const diffX = startX - endX;
+      const diffY = startY - endY;
+
+      // Only trigger if horizontal swipe exceeds vertical swipe (avoid blocking page scroll)
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+        if (diffX > 0) {
           handleNextPhoto();
-        }
-      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-        if (showcaseIndex > 0) {
-          e.preventDefault();
+        } else {
           handlePrevPhoto();
         }
       }
     };
 
-    window.addEventListener('wheel', handleWindowWheel, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    window.addEventListener('keydown', handleKeyDown);
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
 
     return () => {
-      window.removeEventListener('wheel', handleWindowWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('keydown', handleKeyDown);
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchend', onTouchEnd);
     };
-  }, [showcaseIndex, totalCount, isAtLastPhoto, lightboxOpen, handleNextPhoto, handlePrevPhoto]);
+  }, [handleNextPhoto, handlePrevPhoto]);
 
-  // Dimension helpers for the edge-to-edge staggered horizontal layout (matching the video)
+  // Dimension helpers for the edge-to-edge staggered horizontal layout
   const isMobile = viewportWidth < 640;
   const isTablet = viewportWidth >= 640 && viewportWidth < 1024;
 
@@ -291,16 +246,14 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
     ? Math.min(viewportWidth * 0.76, 700) 
     : Math.min(viewportWidth * 0.64, 1050);
 
-  // Spacing between card centers: tight overlap creates continuous edge-to-edge flow with minimal side gaps
   const cardSpacing = isMobile ? cardWidth * 0.84 : cardWidth * 0.68;
 
-  // Alternating vertical offsets for the organic high-fashion collage spread seen in the video
   const getStaggerY = (diff: number) => {
     if (diff === 0) return 0;
-    if (diff === -1) return -26; // Left card floats slightly higher
-    if (diff === 1) return 30;   // Right card floats slightly lower
-    if (diff === -2) return 22;  // Far left floats lower
-    if (diff === 2) return -22;  // Far right floats higher
+    if (diff === -1) return -26;
+    if (diff === 1) return 30;
+    if (diff === -2) return 22;
+    if (diff === 2) return -22;
     return (diff % 2 === 0 ? 16 : -16);
   };
 
@@ -332,17 +285,18 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div id="gallery" className="bg-[#090909] text-white relative min-h-screen w-full select-none">
+    <section id="gallery" className="bg-[#090909] text-white relative w-full select-none border-t border-white/10">
       
       {/* ========================================================================= */}
       {/* 1. FULL-WIDTH, FULL-PAGE IMMERSIVE SCROLL-ANIMATED SHOWCASE STAGE          */}
       {/* ========================================================================= */}
       <div 
         ref={showcaseContainerRef}
-        className="relative w-full h-[100dvh] flex flex-col justify-between pt-16 sm:pt-20 pb-3 px-1 sm:px-2 overflow-hidden"
+        data-cursor="drag"
+        className="relative w-full min-h-[92vh] sm:min-h-[96vh] flex flex-col justify-between pt-16 sm:pt-20 pb-4 px-2 sm:px-4 overflow-hidden"
       >
         {/* Top Gold Progress Track across full width */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-white/10 z-50 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-white/10 z-50 pointer-events-none">
           <div 
             className="h-full bg-gradient-to-r from-[#8E7552] via-[#C9B28F] to-[#E5D5B8] transition-all duration-300 ease-out shadow-[0_0_8px_rgba(201,178,143,0.6)]"
             style={{ width: `${progressPercentage}%` }}
@@ -350,19 +304,19 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
         </div>
 
         {/* Ambient Golden Fog / Lens Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] h-[90vh] bg-[#A58A62]/10 rounded-full blur-[190px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] h-[90vh] bg-[#A58A62]/10 rounded-full blur-[190px] pointer-events-none animate-gold-glow" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(5,5,5,0.94)_100%)] pointer-events-none" />
 
-        {/* Technical Grid Crosshair Overlay (Inspired by User's Video) */}
+        {/* Technical Grid Crosshair Overlay */}
         <div className="absolute inset-x-4 top-20 bottom-16 border border-white/[0.04] pointer-events-none hidden md:block" />
         
         {/* Studio Technical Viewfinder Annotations (Corners) */}
         <div className="absolute top-20 left-4 sm:left-8 z-30 pointer-events-none hidden sm:flex flex-col text-[10px] font-mono tracking-widest text-white/50 uppercase">
           <div className="flex items-center space-x-2 text-[#A58A62]">
             <span className="w-1.5 h-1.5 bg-[#A58A62] rounded-full animate-ping" />
-            <span className="font-semibold">EST. 2014 • ROYAL HERITAGE</span>
+            <span className="font-semibold">EST. 1992 • ROYAL HERITAGE</span>
           </div>
-          <span className="text-white/40 mt-0.5">MOTION / STILLS • SIGNAL 01</span>
+          <span className="text-white/40 mt-0.5">MOTION / STILLS • ARCHIVE 05</span>
         </div>
 
         <div className="absolute top-20 right-4 sm:right-8 z-30 pointer-events-none hidden sm:flex flex-col items-end text-[10px] font-mono tracking-widest text-white/50 uppercase">
@@ -373,7 +327,7 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
         {/* ========================================================================= */}
         {/* TOP EDITORIAL FILTER STRIP & NAVIGATION BAR                                */}
         {/* ========================================================================= */}
-        <div className="relative z-30 w-full flex flex-col sm:flex-row items-center justify-between gap-2.5 border-b border-white/10 pb-2.5 px-2">
+        <div className="relative z-30 w-full flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-white/10 pb-3 px-2">
           
           {/* Brand & Plate Index */}
           <div className="flex items-center space-x-3">
@@ -393,9 +347,9 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
               <button
                 key={cat.id}
                 onClick={() => handleCategorySelect(cat.id)}
-                className={`px-2.5 sm:px-3 py-1 text-[9px] sm:text-[10px] font-mono uppercase tracking-widest rounded-full transition-all duration-300 whitespace-nowrap ${
+                className={`px-3 py-1 text-[9px] sm:text-[10px] font-mono uppercase tracking-widest rounded-full transition-all duration-300 whitespace-nowrap ${
                   selectedCategory === cat.id
-                    ? 'bg-[#A58A62] text-white shadow-[0_0_12px_rgba(165,138,98,0.4)] font-semibold'
+                    ? 'bg-[#A58A62] text-white shadow-[0_0_12px_rgba(165,138,98,0.5)] font-semibold'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -404,26 +358,40 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
             ))}
           </div>
 
-          {/* Quick Lightbox Enlarge Action */}
-          <button
-            onClick={() => handleOpenLightbox(showcaseIndex)}
-            className="hidden lg:flex items-center space-x-2 text-[10px] font-mono tracking-widest text-white/70 hover:text-[#A58A62] transition-colors"
-          >
-            <Maximize2 size={13} className="text-[#A58A62]" />
-            <span>FULLSCREEN APERTURE</span>
-          </button>
+          {/* Top Right Controls: Auto-Play & Lightbox Enlarge Action */}
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setIsAutoPlay(!isAutoPlay)}
+              title="Toggle automatic slideshow"
+              className={`flex items-center space-x-1.5 text-[10px] font-mono tracking-widest px-2.5 py-1 rounded-full border transition-all ${
+                isAutoPlay
+                  ? 'border-[#A58A62] text-[#A58A62] bg-[#A58A62]/10'
+                  : 'border-white/20 text-white/60 hover:text-white'
+              }`}
+            >
+              {isAutoPlay ? <Pause size={10} /> : <Play size={10} />}
+              <span>{isAutoPlay ? 'AUTOPLAY ON' : 'AUTOPLAY'}</span>
+            </button>
+
+            <button
+              onClick={() => handleOpenLightbox(showcaseIndex)}
+              className="hidden lg:flex items-center space-x-2 text-[10px] font-mono tracking-widest text-white/70 hover:text-[#A58A62] transition-colors"
+            >
+              <Maximize2 size={13} className="text-[#A58A62]" />
+              <span>FULLSCREEN</span>
+            </button>
+          </div>
         </div>
 
         {/* ========================================================================= */}
-        {/* KINETIC HORIZONTAL 3D COLLAGE STAGE (CONTINUOUS SMOOTH GLIDE LIKE VIDEO)   */}
+        {/* KINETIC HORIZONTAL 3D COLLAGE STAGE                                        */}
         {/* ========================================================================= */}
         <div 
-          className="relative w-full flex-1 flex items-center justify-center overflow-hidden"
+          className="relative w-full flex-1 min-h-[420px] sm:min-h-[500px] flex items-center justify-center overflow-hidden my-4"
           style={{ perspective: '1200px' }}
         >
           {filteredItems.map((item, idx) => {
             const diff = idx - showcaseIndex;
-            // Only render items within visible spread (-2 to +2) for silky 60fps performance
             if (Math.abs(diff) > 2) return null;
 
             const isActive = diff === 0;
@@ -444,8 +412,8 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
                     handleSelectThumbnail(idx);
                   }
                 }}
-                className={`absolute top-1/2 left-1/2 select-none cursor-pointer transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                  isActive ? 'pointer-events-auto' : 'pointer-events-auto hover:opacity-90'
+                className={`absolute top-1/2 left-1/2 select-none cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  isActive ? 'pointer-events-auto' : 'pointer-events-auto hover:opacity-95'
                 }`}
                 style={{
                   width: `${cardWidth}px`,
@@ -457,7 +425,7 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
                 }}
               >
                 {isActive ? (
-                  <TiltCard maxTilt={3} scale={1.01} glare={true}>
+                  <TiltCard maxTilt={4} scale={1.01} glare={true}>
                     <div className="relative overflow-hidden bg-black border-2 border-[#A58A62] rounded-sm shadow-[0_30px_90px_rgba(0,0,0,0.98)] group aspect-[16/10] w-full">
                       
                       {/* Image */}
@@ -536,11 +504,11 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
                       {diff < 0 ? (
                         <>
                           <ChevronLeft size={11} className="text-[#A58A62]" />
-                          <span>PREV: {item.title.slice(0, 14)}...</span>
+                          <span>PREV</span>
                         </>
                       ) : (
                         <>
-                          <span>NEXT: {item.title.slice(0, 14)}...</span>
+                          <span>NEXT</span>
                           <ChevronRight size={11} className="text-[#A58A62]" />
                         </>
                       )}
@@ -553,60 +521,53 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
         </div>
 
         {/* ========================================================================= */}
-        {/* BOTTOM TECHNICAL HUD: ARROWS, DYNAMIC LOCK STATUS & STRIP                  */}
+        {/* BOTTOM TECHNICAL HUD: ARROWS, SCRUB RIBBON & CONTROLS                       */}
         {/* ========================================================================= */}
-        <div className="relative z-30 w-full space-y-2 pt-1 px-1">
+        <div className="relative z-30 w-full space-y-2.5 pt-1 px-1">
           
           {/* Status Row */}
           <div className="w-full flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-white/70">
             
-            {/* Arrow Nav Buttons */}
+            {/* Arrow Nav Buttons with Magnetic Pull */}
             <div className="flex items-center space-x-2">
-              <button
-                onClick={handlePrevPhoto}
-                disabled={showcaseIndex === 0}
-                aria-label="Previous frame"
-                className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
-                  showcaseIndex === 0
-                    ? 'border-white/10 text-white/20 cursor-not-allowed'
-                    : 'border-white/30 text-white hover:bg-[#A58A62] hover:border-[#A58A62] active:scale-95'
-                }`}
-              >
-                <ChevronLeft size={15} />
-              </button>
-              <button
-                onClick={handleNextPhoto}
-                disabled={isAtLastPhoto}
-                aria-label="Next frame"
-                className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
-                  isAtLastPhoto
-                    ? 'border-white/10 text-white/20 cursor-not-allowed'
-                    : 'border-white/30 text-white hover:bg-[#A58A62] hover:border-[#A58A62] active:scale-95'
-                }`}
-              >
-                <ChevronRight size={15} />
-              </button>
-              <span className="text-[9px] font-mono text-white/40 ml-1 hidden md:inline">
-                SCROLL WHEEL OR ARROW KEYS
+              <Magnetic strength={0.3} radius={50}>
+                <button
+                  onClick={handlePrevPhoto}
+                  aria-label="Previous frame"
+                  className="w-9 h-9 rounded-full border border-white/30 text-white hover:bg-[#A58A62] hover:border-[#A58A62] flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+              </Magnetic>
+
+              <Magnetic strength={0.3} radius={50}>
+                <button
+                  onClick={handleNextPhoto}
+                  aria-label="Next frame"
+                  className="w-9 h-9 rounded-full border border-white/30 text-white hover:bg-[#A58A62] hover:border-[#A58A62] flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </Magnetic>
+
+              <span className="text-[9px] font-mono text-white/40 ml-2 hidden sm:inline">
+                CLICK ARROWS OR DRAG
               </span>
             </div>
 
-            {/* DYNAMIC SCROLL LOCK STATUS NOTIFIER */}
+            {/* Dynamic Kinetic & Scroll Status Badge */}
             <div className="text-center flex items-center space-x-2">
-              {isAtLastPhoto ? (
-                <button
-                  onClick={scrollToClientSection}
-                  className="bg-[#A58A62] hover:bg-[#b89a6f] text-black font-semibold px-4 py-1 text-[10px] sm:text-[11px] flex items-center space-x-2 animate-bounce rounded-full shadow-[0_0_20px_rgba(165,138,98,0.7)] transition-transform active:scale-95 cursor-pointer"
-                >
-                  <Sparkles size={13} className="text-black" />
-                  <span>LAST FRAME REACHED • SCROLL DOWN TO REVEAL CLIENT SUITE</span>
-                  <ArrowDown size={13} />
-                </button>
+              {showcaseIndex >= totalCount - 1 ? (
+                <div className="flex items-center space-x-2 bg-[#A58A62] text-white px-3.5 py-1.5 rounded-full text-[9px] sm:text-[10px] shadow-[0_0_12px_rgba(165,138,98,0.6)]">
+                  <Sparkles size={11} className="text-white" />
+                  <span className="font-semibold text-white">ALL {totalCount} FRAMES VIEWED • SCROLL DOWN TO CONTINUE</span>
+                  <ArrowDown size={11} className="animate-bounce" />
+                </div>
               ) : (
-                <div className="flex items-center space-x-2 text-white/80 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[9px] sm:text-[10px]">
+                <div className="flex items-center space-x-2 text-white/90 bg-white/10 border border-[#A58A62]/40 px-3.5 py-1.5 rounded-full text-[9px] sm:text-[10px]">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#A58A62] animate-ping" />
-                  <span>SCROLL MOUSE WHEEL TO ANIMATE PHOTOS</span>
-                  <span className="hidden sm:inline text-white/40">(PAGE LOCKED UNTIL LAST PHOTO)</span>
+                  <span className="font-medium text-[#E5D5B8]">SCROLL MOUSE WHEEL TO ANIMATE PHOTOS</span>
+                  <span className="text-white/40 hidden md:inline">({showcaseIndex + 1} / {totalCount})</span>
                 </div>
               )}
             </div>
@@ -614,7 +575,7 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
             {/* Exif Tag & Plate Counter */}
             <div className="flex items-center space-x-3 text-right">
               <span className="hidden lg:inline text-[9px] text-white/40 font-mono">
-                LEICA 50MM F/0.95 • 1/1000S
+                LEICA 50MM F/0.95
               </span>
               <span className="font-mono text-[#A58A62] font-semibold text-[11px]">
                 {showcaseIndex + 1} / {totalCount}
@@ -673,15 +634,15 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. POST-SHOWCASE SECTION (REVEALED ONLY AFTER REACHING LAST PHOTO)         */}
+      {/* 2. PRIVATE CLIENT PORTAL SECTION                                          */}
       {/* ========================================================================= */}
-      <section 
+      <div 
         id="gallery-client-suite"
-        className="py-20 sm:py-28 bg-[#111111] border-t border-white/10 text-white relative z-20"
+        className="py-16 sm:py-24 bg-[#111111] border-t border-white/10 text-white relative z-20"
       >
         <div className="w-full max-w-[96vw] mx-auto px-3 sm:px-6 lg:px-8">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center pb-16 border-b border-white/10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center pb-12 border-b border-white/10">
             <div>
               <div className="flex items-center space-x-2 text-[10px] font-mono tracking-widest text-[#A58A62] uppercase mb-2">
                 <Film size={12} />
@@ -691,33 +652,38 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
                 Private Online Proofing & High-Res Portals
               </h3>
               <p className="text-xs sm:text-sm text-white/70 font-light mt-3 leading-relaxed max-w-lg">
-                Are you an existing Rexmo client looking for your password-protected wedding proofing gallery, raw selection catalog, or archival print ordering suite?
+                Existing Rexmo patrons can access their password-protected wedding proofing gallery, raw selection catalog, or archival print ordering suite with dedicated access keys.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <a
-                href="mailto:jesleyfrantin@gmail.com?subject=Private%20Client%20Gallery%20Access"
-                onClick={() => soundEngine.playGoldenChime()}
-                className="px-6 py-4 bg-[#A58A62] hover:bg-[#8e7552] text-white text-xs font-mono uppercase tracking-[0.2em] transition-colors text-center shadow-lg"
-              >
-                REQUEST PRIVATE ACCESS KEY →
-              </a>
-              <button
-                onClick={() => {
-                  soundEngine.playShutterClick();
-                  if (onNavigate) onNavigate('contact');
-                }}
-                className="px-6 py-4 bg-transparent hover:bg-white/5 border border-white/20 text-white text-xs font-mono uppercase tracking-[0.2em] transition-colors text-center"
-              >
-                INQUIRE STUDIO DATES
-              </button>
+              <Magnetic strength={0.2} radius={60}>
+                <a
+                  href="mailto:jesleyfrantin@gmail.com?subject=Private%20Client%20Gallery%20Access"
+                  onClick={() => soundEngine.playGoldenChime()}
+                  className="px-6 py-4 bg-[#A58A62] hover:bg-[#8e7552] text-white text-xs font-mono uppercase tracking-[0.2em] transition-colors text-center shadow-lg block"
+                >
+                  REQUEST PRIVATE ACCESS KEY →
+                </a>
+              </Magnetic>
+              
+              <Magnetic strength={0.2} radius={60}>
+                <button
+                  onClick={() => {
+                    soundEngine.playShutterClick();
+                    if (onNavigate) onNavigate('contact');
+                  }}
+                  className="px-6 py-4 bg-transparent hover:bg-white/5 border border-white/20 text-white text-xs font-mono uppercase tracking-[0.2em] transition-colors text-center block w-full sm:w-auto"
+                >
+                  INQUIRE STUDIO DATES
+                </button>
+              </Magnetic>
             </div>
           </div>
 
-          {/* Quick Nav to other pages */}
-          <div className="pt-12 flex flex-col sm:flex-row items-center justify-between gap-6 text-[11px] font-mono uppercase tracking-widest text-white/60">
-            <span>EXPLORE OTHER MONOGRAPHS</span>
+          {/* Quick Nav to neighboring sections on the single page */}
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono uppercase tracking-widest text-white/60">
+            <span>CONTINUE EXPLORING ARCHIVES</span>
             <div className="flex flex-wrap items-center gap-4">
               <button
                 onClick={() => onNavigate && onNavigate('stories')}
@@ -744,7 +710,7 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
           </div>
 
         </div>
-      </section>
+      </div>
 
       {/* Fullscreen Interactive Lightbox */}
       <Lightbox
@@ -761,6 +727,8 @@ export const Gallery: FC<GalleryProps> = ({ onNavigate }) => {
           setLightboxIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
         }}
       />
-    </div>
+    </section>
   );
 };
+
+export default Gallery;

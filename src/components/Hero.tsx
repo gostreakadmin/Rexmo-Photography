@@ -5,6 +5,8 @@ import { AnimatedCounter } from './AnimatedCounter';
 import { GoldenParticles } from './GoldenParticles';
 import { TiltCard } from './TiltCard';
 import { ApertureBadge } from './ApertureBadge';
+import { TextReveal } from './TextReveal';
+import { Magnetic } from './Magnetic';
 import { useLanguage } from '../context/LanguageContext';
 import { soundEngine } from '../utils/soundEffects';
 
@@ -124,17 +126,20 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry, onWatchCinem
                 <span>{t('hero.badge', 'LEGACY ARCHIVE • VOL. XXXIV')}</span>
               </div>
               
-              {/* Rotating Lens Aperture Badge */}
+              {/* Rotating Lens Aperture Badge with Magnetic Attraction */}
               <div className="hidden sm:block">
-                <ApertureBadge size={64} />
+                <Magnetic strength={0.25} radius={60}>
+                  <ApertureBadge size={64} />
+                </Magnetic>
               </div>
             </div>
 
             <div className="space-y-2">
               <h1 className="font-serif text-5xl sm:text-6xl xl:text-7xl font-light text-[#171717] leading-[1.05] tracking-tight">
-                {t('hero.title1', 'TIMELESS')} <br />
+                <TextReveal text={t('hero.title1', 'TIMELESS')} delay={100} />
+                <br />
                 <span className="italic font-normal text-[#A58A62]">
-                  {t('hero.title2', 'STORIES.')}
+                  <TextReveal text={t('hero.title2', 'STORIES.')} delay={300} />
                 </span>
               </h1>
               <p className="text-xs uppercase tracking-[0.35em] text-[#6F6F6F] font-medium pt-1 font-mono">
@@ -150,27 +155,31 @@ export const Hero: FC<HeroProps> = ({ onExploreWork, onOpenInquiry, onWatchCinem
               {t('hero.subtitle', 'Bespoke wedding and portrait cinematography crafted with analog sensibilities, natural emotion, and refined editorial composition.')}
             </p>
 
-            {/* CTAs with Magnetic Shimmer */}
+            {/* CTAs with Magnetic Attraction & Shimmer */}
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-              <button
-                onClick={handleExplore}
-                className="group relative overflow-hidden inline-flex items-center justify-center space-x-3 bg-[#171717] text-[#FFFFFF] px-7 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#A58A62] transition-colors duration-300 shadow-sm shimmer-hover"
-              >
-                <span>{t('hero.cta.explore', 'EXPLORE OUR WORK')}</span>
-                <span className="text-sm transform group-hover:translate-x-1.5 transition-transform duration-300">
-                  →
-                </span>
-              </button>
+              <Magnetic strength={0.3} radius={70}>
+                <button
+                  onClick={handleExplore}
+                  className="group relative overflow-hidden inline-flex items-center justify-center space-x-3 bg-[#171717] text-[#FFFFFF] px-7 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#A58A62] transition-colors duration-300 shadow-sm shimmer-hover w-full sm:w-auto"
+                >
+                  <span>{t('hero.cta.explore', 'EXPLORE OUR WORK')}</span>
+                  <span className="text-sm transform group-hover:translate-x-1.5 transition-transform duration-300">
+                    →
+                  </span>
+                </button>
+              </Magnetic>
 
-              <button
-                onClick={handleInquire}
-                className="group inline-flex items-center justify-center space-x-2 border border-[#171717] text-[#171717] px-7 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:border-[#A58A62] hover:text-[#A58A62] transition-colors duration-300 bg-transparent"
-              >
-                <span>{t('hero.cta.journey', 'BEGIN YOUR JOURNEY')}</span>
-                <span className="text-sm transform group-hover:translate-x-1.5 transition-transform duration-300">
-                  →
-                </span>
-              </button>
+              <Magnetic strength={0.3} radius={70}>
+                <button
+                  onClick={handleInquire}
+                  className="group inline-flex items-center justify-center space-x-2 border border-[#171717] text-[#171717] px-7 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:border-[#A58A62] hover:text-[#A58A62] transition-colors duration-300 bg-transparent w-full sm:w-auto"
+                >
+                  <span>{t('hero.cta.journey', 'BEGIN YOUR JOURNEY')}</span>
+                  <span className="text-sm transform group-hover:translate-x-1.5 transition-transform duration-300">
+                    →
+                  </span>
+                </button>
+              </Magnetic>
             </div>
 
             {/* Micro Stats with Animated Counter */}
